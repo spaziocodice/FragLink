@@ -1,4 +1,4 @@
-package com.atc.svde.rdfizer.triplify;
+package com.spaziocodice.labs.fraglink;
 
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.atc.svde.rdfizer.triplify.converters.RDFMessageConverter.createConverters;
+import static com.spaziocodice.labs.fraglink.converters.RDFMessageConverter.createConverters;
 import static org.apache.jena.riot.Lang.JSONLD;
 
 @Configuration

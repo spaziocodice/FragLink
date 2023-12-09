@@ -1,4 +1,4 @@
-package com.atc.svde.rdfizer.triplify.domain;
+package com.spaziocodice.labs.fraglink.domain;
 
 import lombok.Builder;
 import org.apache.jena.sparql.core.DatasetGraph;

@@ -1,4 +1,4 @@
-package com.atc.svde.rdfizer.triplify;
+package com.spaziocodice.labs.fraglink;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

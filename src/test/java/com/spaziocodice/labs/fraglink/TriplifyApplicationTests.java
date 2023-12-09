@@ -1,4 +1,4 @@
-package com.atc.svde.rdfizer.triplify;
+package com.spaziocodice.labs.fraglink;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,6 +1,6 @@
-package com.atc.svde.rdfizer.triplify.converters;
+package com.spaziocodice.labs.fraglink.converters;
 
-import com.atc.svde.rdfizer.triplify.ContentNegotiationConfiguration;
+import com.spaziocodice.labs.fraglink.ContentNegotiationConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.riot.Lang;

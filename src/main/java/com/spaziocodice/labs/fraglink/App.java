@@ -1,6 +1,5 @@
-package com.atc.svde.rdfizer.triplify;
+package com.spaziocodice.labs.fraglink;
 
-import org.apache.jena.sparql.core.DatasetGraph;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
