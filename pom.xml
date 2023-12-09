@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.spaziocodice.labs.rdf</groupId>
+	<artifactId>fraglink</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>FragLink</name>
+	<description>Linked Data Fragment Server</description>
+	<organization>
+		<name>SpazioCodice SRL</name>
+		<url>https://spaziocodice.com</url>
+	</organization>
+	<developers>
+		<developer>
+			<id>a.gazzarini</id>
+			<name>Andrea Gazzarini</name>
+			<organization>SpazioCodice SRL</organization>
+			<url>https://spaziocodice.com</url>
+			<email>a.gazzarini@spaziocodice.com</email>
+			<roles>
+				<role>Software Architect</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:ssh://git@github.com:spaziocodice/fraglink.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:spaziocodice/fraglink.git</developerConnection>
+	</scm>
+	<distributionManagement>
+		<repository>
+			<id>fraglink-package-registry</id>
+			<url>https://gitlab.com/api/v4/projects/52914288/packages/maven</url>
+		</repository>
+		<snapshotRepository>
+			<id>fraglink-package-registry</id>
+			<url>https://gitlab.com/api/v4/projects/52914288/packages/maven</url>
+		</snapshotRepository>
+	</distributionManagement>
+	<properties>
+		<java.version>17</java.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<dependency.jena.version>4.9.0</dependency.jena.version>
+		<dependency.lombok.version>1.18.30</dependency.lombok.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${dependency.lombok.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>apache-jena-libs</artifactId>
+			<version>${dependency.jena.version}</version>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>
