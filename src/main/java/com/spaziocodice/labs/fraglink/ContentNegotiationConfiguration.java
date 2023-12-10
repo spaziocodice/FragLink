@@ -1,33 +1,25 @@
 package com.spaziocodice.labs.fraglink;
 
+import com.spaziocodice.labs.fraglink.converters.RDFMessageConverter;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.WebContent;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.data.web.config.SpringDataWebConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.spaziocodice.labs.fraglink.converters.RDFMessageConverter.createConverters;
 import static org.apache.jena.riot.Lang.JSONLD;
 
 @Configuration
-public class ContentNegotiationConfiguration extends SpringDataWebConfiguration {
-    @Value("${svde.baseuri}")
-    private String baseUri;
+public class ContentNegotiationConfiguration implements WebMvcConfigurer {
 
     private final static Map<String, MediaType> SUPPORTED_TRIPLES_MEDIA_TYPES = new HashMap<>() {{
         put("xml", MediaType.parseMediaType(WebContent.contentTypeRDFXML));
@@ -61,34 +53,13 @@ public class ContentNegotiationConfiguration extends SpringDataWebConfiguration 
     private final static Map<String, MediaType> MEDIA_TYPES= new HashMap<>() {{
         putAll(SUPPORTED_TRIPLES_MEDIA_TYPES);
         putAll(SUPPORTED_QUADS_MEDIA_TYPES);
-        put("json", MediaType.APPLICATION_JSON);
-        put("marcxml", MediaType.parseMediaType("application/marcxml+xml"));
-        put("mrc", MediaType.parseMediaType("application/marc"));
-        put("ris", MediaType.parseMediaType("application/x-research-info-systems"));
     }};
-
-    public static final List<MediaType> RDF_MEDIA_TYPES = new ArrayList<>() {{
-        addAll(SUPPORTED_TRIPLES_MEDIA_TYPES.values());
-        addAll(SUPPORTED_QUADS_MEDIA_TYPES.values());
-    }};
-
-    public ContentNegotiationConfiguration(ApplicationContext context, ObjectFactory<ConversionService> conversionService) {
-        super(context, conversionService);
-    }
 
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-        configurer.favorPathExtension(true)
-                .favorParameter(true)
-                .ignoreAcceptHeader(false)
-                .useRegisteredExtensionsOnly(true)
-                .defaultContentType(MediaType.APPLICATION_JSON)
-                .mediaTypes(MEDIA_TYPES);
-    }
-
-    @Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer.setUseSuffixPatternMatch(true);
+        configurer.useRegisteredExtensionsOnly(true)
+                  .defaultContentType(MediaType.parseMediaType(WebContent.contentTypeTurtle))
+                  .mediaTypes(MEDIA_TYPES);
     }
 
     @Override
@@ -108,5 +79,9 @@ public class ContentNegotiationConfiguration extends SpringDataWebConfiguration 
                                                 .stream()
                                                 .map(Object::toString)
                                                 .toList()));
+    }
+
+    public static List<RDFMessageConverter> createConverters(List<String> mediaTypes) {
+        return mediaTypes.stream().map(RDFMessageConverter::new).collect(Collectors.toList());
     }
 }

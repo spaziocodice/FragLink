@@ -12,7 +12,7 @@ public interface Identifiers {
     String HYDRA = "http://www.w3.org/ns/hydra/core#";
     String SD = "http://www.w3.org/ns/sparql-service-description#";
 
-    Property HYDRA_TOTALITEMS = createProperty(HYDRA + "totalItems");
+    Property TOTAL_MATCHES = createProperty(HYDRA + "totalItems");
 
     Property MAX_STATEMENTS_IN_PAGE = createProperty(HYDRA + "itemsPerPage");
 
@@ -30,11 +30,13 @@ public interface Identifiers {
 
     Property HYDRA_PAGEDCOLLECTION = createProperty(HYDRA + "PagedCollection");
 
-    Property HYDRA_FIRSTPAGE = createProperty(HYDRA + "firstPage");
+    Property FIRST_PAGE = createProperty(HYDRA + "firstPage");
 
-    Property HYDRA_NEXTPAGE = createProperty(HYDRA + "nextPage");
+    Property NEXT_PAGE = createProperty(HYDRA + "nextPage");
 
-    Property HYDRA_PREVIOUSPAGE = createProperty(HYDRA + "previousPage");
+    Property PREVIOUS_PAGE = createProperty(HYDRA + "previousPage");
+
+    Property LAST_PAGE = createProperty(HYDRA + "previousPage");
 
     String PAGE_NUMBER_PARAMETER_NAME = "page";
 }
