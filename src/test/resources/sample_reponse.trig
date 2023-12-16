@@ -1,0 +1,134 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix hydra: <http://www.w3.org/ns/hydra/core#>.
+@prefix void: <http://rdfs.org/ns/void#>.
+@prefix sd: <http://www.w3.org/TR/sparql11-service-description/#>.
+
+<https://data.linkeddatafragments.org/harvard#metadata> {
+<https://data.linkeddatafragments.org/harvard#metadata> <http://xmlns.com/foaf/0.1/primaryTopic> <https://data.linkeddatafragments.org/harvard>.
+<https://data.linkeddatafragments.org/#dataset> hydra:member <https://data.linkeddatafragments.org/harvard#dataset>.
+<https://data.linkeddatafragments.org/harvard#dataset> a void:Dataset, hydra:Collection;
+    void:subset <https://data.linkeddatafragments.org/harvard>;
+    hydra:search _:pattern.
+_:pattern hydra:template "https://data.linkeddatafragments.org/harvard{?subject,predicate,object}";
+    hydra:variableRepresentation hydra:ExplicitRepresentation;
+    hydra:mapping _:subject, _:predicate, _:object.
+_:subject hydra:variable "subject";
+    hydra:property rdf:subject.
+_:predicate hydra:variable "predicate";
+    hydra:property rdf:predicate.
+_:object hydra:variable "object";
+    hydra:property rdf:object.
+<https://data.linkeddatafragments.org/harvard> void:subset <https://data.linkeddatafragments.org/harvard>;
+    a hydra:PartialCollectionView;
+    <http://purl.org/dc/terms/title> "Linked Data Fragment of Harvard"@en;
+    <http://purl.org/dc/terms/description> "Triple/Quad Pattern Fragment of the 'Harvard' dataset containing triples matching the pattern { ?s ?p ?o. }."@en;
+    <http://purl.org/dc/terms/source> <https://data.linkeddatafragments.org/harvard#dataset>;
+    hydra:totalItems "183644406"^^xsd:integer;
+    void:triples "183644406"^^xsd:integer;
+    hydra:itemsPerPage "100"^^xsd:integer;
+    hydra:first <https://data.linkeddatafragments.org/harvard?page=1>;
+    hydra:next <https://data.linkeddatafragments.org/harvard?page=2>
+}
+<https://data.linkeddatafragments.org/.well-known/genid/b1> <http://xmlns.com/foaf/0.1/name> "San Francisco Museum of Art".
+<https://data.linkeddatafragments.org/.well-known/genid/b10> <http://schema.org/birthDate> "1954";
+    <http://xmlns.com/foaf/0.1/name> "Thim-Mabrey, Christiane".
+<https://data.linkeddatafragments.org/.well-known/genid/b100> <http://xmlns.com/foaf/0.1/name> "United States".
+<https://data.linkeddatafragments.org/.well-known/genid/b1000> <http://schema.org/birthDate> "1909";
+    <http://xmlns.com/foaf/0.1/name> "Lyford, Walter Henry".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000> <http://xmlns.com/foaf/0.1/name> "Benari, Nahum".
+<https://data.linkeddatafragments.org/.well-known/genid/b100000> <http://xmlns.com/foaf/0.1/name> "Pazos de la Torre, Luis A".
+<https://data.linkeddatafragments.org/.well-known/genid/b1000000> <http://xmlns.com/foaf/0.1/name> "Jackson, Elizabeth M".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000000> <http://schema.org/birthDate> "1593";
+    <http://schema.org/deathDate> "1683";
+    <http://xmlns.com/foaf/0.1/name> "Walton, Izaak".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000001> <http://schema.org/birthDate> "1630";
+    <http://schema.org/deathDate> "1687";
+    <http://xmlns.com/foaf/0.1/name> "Cotton, Charles".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000002> <http://schema.org/birthDate> "";
+    <http://schema.org/deathDate> "1124";
+    <http://xmlns.com/foaf/0.1/name> "Maydānī, Aḥmad ibn Muḥammad".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000003> <http://schema.org/birthDate> "1899";
+    <http://xmlns.com/foaf/0.1/name> "Shibui, Kiyoshi".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000004> <http://schema.org/birthDate> "1924";
+    <http://xmlns.com/foaf/0.1/name> "Kikuchi, Sadao".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000005> <http://xmlns.com/foaf/0.1/name> "Warren, Erasmus".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000006> <http://schema.org/birthDate> "1578";
+    <http://schema.org/deathDate> "1652";
+    <http://xmlns.com/foaf/0.1/name> "Ward, Nathaniel".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000007> <http://xmlns.com/foaf/0.1/name> "Múzeum Slovenskej republiky rád v Prešove".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000008> <http://schema.org/birthDate> "1664";
+    <http://schema.org/deathDate> "1748";
+    <http://xmlns.com/foaf/0.1/name> "Wallis, William".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000009> <http://xmlns.com/foaf/0.1/name> "Munhwajae Yŏnʾguso (Korea)".
+<https://data.linkeddatafragments.org/.well-known/genid/b1000001> <http://xmlns.com/foaf/0.1/name> "Steventon, Robert W".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000010> <http://schema.org/birthDate> "1616";
+    <http://schema.org/deathDate> "1703";
+    <http://xmlns.com/foaf/0.1/name> "Wallis, John".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000011> <http://schema.org/birthDate> "1720";
+    <http://schema.org/deathDate> "1774";
+    <http://xmlns.com/foaf/0.1/name> "Hollis, Thomas".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000012> <http://xmlns.com/foaf/0.1/name> "United States".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000013> <http://xmlns.com/foaf/0.1/name> "United States".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000014> <http://schema.org/birthDate> "1970";
+    <http://xmlns.com/foaf/0.1/name> "Muʾtamar al-Muḥāmīn al-ʻArab".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000015> <http://xmlns.com/foaf/0.1/name> "Ittaḥād al-Muḥāmīn al-ʻArab".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000016> <http://xmlns.com/foaf/0.1/name> "Maydānī, ʻAbd al-Raḥmān Ḥabannakah".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000017> <http://schema.org/birthDate> "1667";
+    <http://schema.org/deathDate> "1731";
+    <http://xmlns.com/foaf/0.1/name> "Ward, Edward".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000018> <http://schema.org/birthDate> "1609";
+    <http://schema.org/deathDate> "1674";
+    <http://xmlns.com/foaf/0.1/name> "Clarendon, Edward Hyde".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000019> <http://schema.org/birthDate> "1963";
+    <http://xmlns.com/foaf/0.1/name> "Muʾtamar li-Buhuth al-Intaj al-Bashari".
+<https://data.linkeddatafragments.org/.well-known/genid/b1000002> <http://xmlns.com/foaf/0.1/name> "United States".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000020> <http://schema.org/birthDate> "1593";
+    <http://schema.org/deathDate> "1683";
+    <http://xmlns.com/foaf/0.1/name> "Walton, Izaak".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000021> <http://schema.org/birthDate> "1841";
+    <http://schema.org/deathDate> "1911";
+    <http://xmlns.com/foaf/0.1/name> "Ware, Eugene Fitch".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000022> <http://xmlns.com/foaf/0.1/name> "Detwiler, John Y".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000023> <http://schema.org/birthDate> "1965";
+    <http://xmlns.com/foaf/0.1/name> "Arab Petroleum Congress".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000024> <http://xmlns.com/foaf/0.1/name> "League of Arab States".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000025> <http://xmlns.com/foaf/0.1/name> "Ray, Duncan".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000026> <http://schema.org/birthDate> "";
+    <http://schema.org/deathDate> "1829";
+    <http://xmlns.com/foaf/0.1/name> "Black, Duncan".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000027> <http://schema.org/birthDate> "1794";
+    <http://schema.org/deathDate> "1852";
+    <http://xmlns.com/foaf/0.1/name> "Mīrghanī, Muḥammad ʻUthmān".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000028> <http://schema.org/birthDate> "1959";
+    <http://xmlns.com/foaf/0.1/name> "Afro-Asian Youth Conference".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000029> <http://xmlns.com/foaf/0.1/name> "Permanent Organization for Afro-Asian Peoples' Solidarity".
+<https://data.linkeddatafragments.org/.well-known/genid/b1000003> <http://schema.org/birthDate> "1904";
+    <http://xmlns.com/foaf/0.1/name> "Strain, Harold H".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000030> <http://xmlns.com/foaf/0.1/name> "United Arab Republic".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000031> <http://xmlns.com/foaf/0.1/name> "Potter, Franklin H".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000032> <http://xmlns.com/foaf/0.1/name> "Classical Association of the Middle West and South".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000033> <http://xmlns.com/foaf/0.1/name> "Classical Association of New England".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000034> <http://xmlns.com/foaf/0.1/name> "Classical Association of the Pacific States".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000035> <http://xmlns.com/foaf/0.1/name> "Orhanizat︠s︡ii︠a︡ ukraïnsʹkykh nat︠s︡ionalistiv".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000036> <http://xmlns.com/foaf/0.1/name> "Orhanizat︠s︡ii︠a︡ ukraïnsʹkykh nat︠s︡ionalistiv".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000037> <http://schema.org/birthDate> "1577";
+    <http://schema.org/deathDate> "1640";
+    <http://xmlns.com/foaf/0.1/name> "Ward, Samuel".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000038> <http://xmlns.com/foaf/0.1/name> "Matthewes, Augustine".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000039> <http://schema.org/birthDate> "1593";
+    <http://schema.org/deathDate> "1683";
+    <http://xmlns.com/foaf/0.1/name> "Walton, Izaak".
+<https://data.linkeddatafragments.org/.well-known/genid/b1000004> <http://xmlns.com/foaf/0.1/name> "McCue, George".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000040> <http://schema.org/birthDate> "1630";
+    <http://schema.org/deathDate> "1687";
+    <http://xmlns.com/foaf/0.1/name> "Cotton, Charles".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000041> <http://schema.org/birthDate> "1782";
+    <http://schema.org/deathDate> "1849";
+    <http://xmlns.com/foaf/0.1/name> "Major, John".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000042> <http://schema.org/birthDate> "1593";
+    <http://schema.org/deathDate> "1683";
+    <http://xmlns.com/foaf/0.1/name> "Walton, Izaak".
+<https://data.linkeddatafragments.org/.well-known/genid/b10000043> <http://schema.org/birthDate> "1630".

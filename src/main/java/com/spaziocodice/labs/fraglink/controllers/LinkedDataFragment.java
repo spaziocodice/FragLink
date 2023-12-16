@@ -1,11 +1,14 @@
 package com.spaziocodice.labs.fraglink.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.SneakyThrows;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.jena.graph.Graph;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.sparql.graph.GraphFactory;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.VOID;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,21 +58,28 @@ public class LinkedDataFragment {
             .orElseThrow();
     @GetMapping("/fragment")
     public Dataset linkedDataFragment(
-                    @RequestParam(name = SUBJECT_PARAMETER_NAME, required = false) String subject,
-                    @RequestParam(name = PREDICATE_PARAMETER_NAME, required = false) String predicate,
-                    @RequestParam(name = OBJECT_PARAMETER_NAME, required = false) String object,
-                    @RequestParam(name = GRAPH_PARAMETER_NAME, required = false) String graph,
-                    @RequestParam(name = PAGE_NUMBER_PARAMETER_NAME, required = false) Integer pageNumber) {
+            @RequestParam(name = SUBJECT_PARAMETER_NAME, required = false) String subject,
+            @RequestParam(name = PREDICATE_PARAMETER_NAME, required = false) String predicate,
+            @RequestParam(name = OBJECT_PARAMETER_NAME, required = false) String object,
+            @RequestParam(name = GRAPH_PARAMETER_NAME, required = false) String graph,
+            @RequestParam(name = PAGE_NUMBER_PARAMETER_NAME, required = false) Integer pageNumber,
+            HttpServletRequest request) {
         var fragmentUri = "http://blablabl.com";//linkTo(methodOn(LinkedDataFragment.class).linkedDataFragment(subject, predicate, object, graph, pageNumber)).toString();
+
+        var thisUri = request.getRequestURI();
+        var datasetUri = thisUri + "#dataset";
+        var metadataUri = thisUri + "#metadata";
+
+        var graph = GraphFactory.createGraphMem();
 
         final Model model =
                 withControls(
-                        withMetadata(ModelFactory.createDefaultModel(), fragmentUri, fragmentUri, 0),
+                        withMetadata(ModelFactory.create), fragmentUri, datasetUri, 0),
                         fragmentUri,
                         pageNumber,
                         0,
                         fragmentUri);
-        return DatasetFactory.create(model);
+        return DatasetFactory.create().addNamedModel(metadataUri, model);
     }
 
     private Model withMetadata(Model model, String fragmentUri, String datasetUri, long totalMatches) {
