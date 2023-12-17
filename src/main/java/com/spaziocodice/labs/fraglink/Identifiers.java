@@ -28,7 +28,10 @@ public interface Identifiers {
 
     Property HYDRA_COLLECTION = createProperty(HYDRA + "Collection");
 
-    Property HYDRA_PAGEDCOLLECTION = createProperty(HYDRA + "PagedCollection");
+    Property HYDRA_MEMBER = createProperty(HYDRA + "member");
+
+    Property HYDRA_PAGED_COLLECTION = createProperty(HYDRA + "PagedCollection");
+    Property HYDRA_PARTIAL_COLLECTION = createProperty(HYDRA + "PartialCollectionView");
 
     Property FIRST_PAGE = createProperty(HYDRA + "firstPage");
 

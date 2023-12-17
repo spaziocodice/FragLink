@@ -16,8 +16,6 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class RDFMessageConverter extends AbstractGenericHttpMessageConverter<Dataset> {
