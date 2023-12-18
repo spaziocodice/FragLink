@@ -11,6 +11,4 @@ public abstract class LinkedDataFragmentResponse<T> {
     protected long totalMatches;
 
     protected T matches;
-
-
 }
