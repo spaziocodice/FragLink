@@ -42,4 +42,7 @@ public interface Identifiers {
     Property LAST_PAGE = createProperty(HYDRA + "previousPage");
 
     String PAGE_NUMBER_PARAMETER_NAME = "page";
+
+    String TRIPLE_PATTERN_RESOLVER = "triplePatternResolver";
+    String QUAD_PATTERN_RESOLVER = "quadPatternResolver";
 }

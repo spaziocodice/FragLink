@@ -1,5 +1,7 @@
 package com.spaziocodice.labs.fraglink.controllers;
 
+import com.spaziocodice.labs.fraglink.domain.LinkedDataFragmentResponse;
+import com.spaziocodice.labs.fraglink.service.impl.LinkedDataFragmentResolver;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.SneakyThrows;
@@ -12,12 +14,13 @@ import org.apache.jena.sparql.vocabulary.FOAF;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.VOID;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.OptionalLong;
 
 import static com.spaziocodice.labs.fraglink.Identifiers.FIRST_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.GRAPH_PARAMETER_NAME;
@@ -37,9 +40,12 @@ import static com.spaziocodice.labs.fraglink.Identifiers.OBJECT_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PAGE_NUMBER_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PREDICATE_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PREVIOUS_PAGE;
+import static com.spaziocodice.labs.fraglink.Identifiers.QUAD_PATTERN_RESOLVER;
 import static com.spaziocodice.labs.fraglink.Identifiers.SD;
 import static com.spaziocodice.labs.fraglink.Identifiers.SUBJECT_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.TOTAL_MATCHES;
+import static com.spaziocodice.labs.fraglink.Identifiers.TRIPLE_PATTERN_RESOLVER;
+import static com.spaziocodice.labs.fraglink.service.impl.TriplePatternResolver.NO_OP_RESOLVER;
 import static java.util.Optional.ofNullable;
 
 @RestController
@@ -50,6 +56,9 @@ public class LinkedDataFragment {
 
     @Value("${fraglink.base.url}")
     private String baseUrl;
+
+    @Autowired
+    private ApplicationContext serviceFactory;
 
     private String template;
 
@@ -66,28 +75,31 @@ public class LinkedDataFragment {
             @RequestParam(name = GRAPH_PARAMETER_NAME, required = false) String graph,
             @RequestParam(name = PAGE_NUMBER_PARAMETER_NAME, required = false) Integer pageNumber,
             HttpServletRequest request) {
-
         var datasetUri = baseUrl + "#dataset";
         var metadataUri = baseUrl + "#metadata";
         var fragmentUri = baseUrl + request.getRequestURI() + ofNullable(request.getQueryString()).map(value -> "?" + value).orElse("");
 
-        var datasetCardinality = OptionalLong.of(9999999L);
-        var fragmentCardinality = OptionalLong.of(1200L);
-
-
-        var metaModel = ModelFactory.createDefaultModel();
-        var metaModelWithMetadata = withMetadata(metaModel, datasetCardinality, fragmentCardinality, datasetUri, metadataUri, fragmentUri);
-        var metaModelWithControls = withControls(metaModelWithMetadata, datasetUri, fragmentUri, pageNumber, fragmentCardinality);
-
+        var response = resolver(false).linkedDataFragment(
+                                                            ofNullable(subject),
+                                                            ofNullable(predicate),
+                                                            ofNullable(object),
+                                                            ofNullable(graph),
+                                                            ofNullable(pageNumber));
         return DatasetFactory.create()
-                    .setDefaultModel(ModelFactory.createDefaultModel())
-                    .addNamedModel(metadataUri, metaModelWithControls);
+                    .setDefaultModel(response.patternSolution())
+                    .addNamedModel(metadataUri,
+                                    withControls(
+                                            withMetadata(ModelFactory.createDefaultModel(),
+                                                         response,
+                                                         datasetUri, metadataUri, fragmentUri),
+                                            response,
+                                            datasetUri,
+                                            fragmentUri));
     }
 
     private Model withMetadata(
             Model model,
-            OptionalLong datasetCardinality,
-            OptionalLong fragmentCardinality,
+            LinkedDataFragmentResponse<?> response,
             String datasetUri,
             String metadataUri,
             String fragmentUri) {
@@ -105,11 +117,11 @@ public class LinkedDataFragment {
                             .addProperty(RDF.type, HYDRA_COLLECTION )
                             .addProperty(VOID.subset, model.createProperty(baseUrl));
 
-        datasetCardinality.stream()
-                .mapToObj(model::createTypedLiteral)
-                .findFirst()
-                .ifPresent(count -> dataset.addLiteral(TOTAL_MATCHES, count)
-                                           .addLiteral(VOID.triples, count));
+        response.getDatasetCardinality().stream()
+                                        .map(model::createTypedLiteral)
+                                        .findFirst()
+                                        .ifPresent(count -> dataset.addLiteral(TOTAL_MATCHES, count)
+                                                                   .addLiteral(VOID.triples, count));
 
 
         var fragment = model.createResource(fragmentUri)
@@ -122,35 +134,33 @@ public class LinkedDataFragment {
                             .addProperty(DCTerms.source, "<" + datasetUri + ">")
                             .addProperty(MAX_STATEMENTS_IN_PAGE, model.createTypedLiteral(maxStatementsInPage));
 
-        fragmentCardinality.stream()
-                .mapToObj(model::createTypedLiteral)
-                .findFirst()
-                .ifPresent(count -> fragment.addLiteral(TOTAL_MATCHES, count)
-                                            .addLiteral(VOID.triples, count));
-
+        response.getFragmentCardinality().stream()
+                                         .map(model::createTypedLiteral)
+                                         .findFirst()
+                                         .ifPresent(count -> fragment.addLiteral(TOTAL_MATCHES, count)
+                                                                     .addLiteral(VOID.triples, count));
         return model;
     }
 
     public Model withControls(Model model,
+                              LinkedDataFragmentResponse<?> response,
                               String datasetUri,
-                              String fragmentUri,
-                              Integer inputPageNumber,
-                              OptionalLong fragmentCardinality) {
+                              String fragmentUri) {
         var fragmentUrl = url(fragmentUri);
         var fragment = model.createResource(fragmentUri);
         var firstPageUri = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, "1").toString());
 
         fragment.addProperty(FIRST_PAGE, firstPageUri);
 
-        final int pageNumber = ofNullable(inputPageNumber).orElse(1);
+        final int pageNumber = response.getPageNumber().orElse(1);
         if (pageNumber > 1) {
             var prevPageNumber = Long.toString(pageNumber - 1);
             var prevPageId = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, prevPageNumber).toString());
             fragment.addProperty(PREVIOUS_PAGE, prevPageId);
         }
 
-        if (fragmentCardinality.isPresent()) {
-            var lastPageNumber = (fragmentCardinality.getAsLong() / maxStatementsInPage) + 1;
+        if (response.getFragmentCardinality().isPresent()) {
+            var lastPageNumber = (response.getFragmentCardinality().get() / maxStatementsInPage) + 1;
             var nextPageId = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, Long.toString(pageNumber + 1)).toString());
             fragment.addProperty(NEXT_PAGE, nextPageId);
             if (pageNumber != lastPageNumber) {
@@ -185,5 +195,14 @@ public class LinkedDataFragment {
     @SneakyThrows
     private URIBuilder url(String baseUrl) {
         return new URIBuilder(baseUrl);
+    }
+
+    public LinkedDataFragmentResolver<?> resolver(boolean weAreInGraphContext) {
+        try {
+            return serviceFactory.getBean(weAreInGraphContext ? QUAD_PATTERN_RESOLVER : TRIPLE_PATTERN_RESOLVER,
+                                          LinkedDataFragmentResolver.class);
+        } catch (NoSuchBeanDefinitionException exception) {
+            return NO_OP_RESOLVER;
+        }
     }
 }
