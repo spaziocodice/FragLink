@@ -1,10 +1,12 @@
 package com.spaziocodice.labs.fraglink.controllers;
 
 import com.spaziocodice.labs.fraglink.domain.LinkedDataFragmentResponse;
+import com.spaziocodice.labs.fraglink.log.MessageCatalog;
 import com.spaziocodice.labs.fraglink.service.impl.LinkedDataFragmentResolver;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -47,8 +49,10 @@ import static com.spaziocodice.labs.fraglink.Identifiers.TOTAL_MATCHES;
 import static com.spaziocodice.labs.fraglink.Identifiers.TRIPLE_PATTERN_RESOLVER;
 import static com.spaziocodice.labs.fraglink.service.impl.TriplePatternResolver.NO_OP_RESOLVER;
 import static java.util.Optional.ofNullable;
+import static java.util.function.Predicate.not;
 
 @RestController
+@Slf4j
 public class LinkedDataFragment {
 
     @Value("${fraglink.page.maxStatements:50}")
@@ -56,6 +60,18 @@ public class LinkedDataFragment {
 
     @Value("${fraglink.base.url}")
     private String baseUrl;
+
+    @Value("${fraglink.dataset.name}")
+    private String datasetName;
+
+    @Value("${fraglink.dataset.description:}")
+    private String datasetDescription;
+
+    @Value("${fraglink.fragment.name:}")
+    private String fragmentName;
+
+    @Value("${fraglink.fragment.description:}")
+    private String fragmentDescription;
 
     @Autowired
     private ApplicationContext serviceFactory;
@@ -108,31 +124,28 @@ public class LinkedDataFragment {
         var dataset = model.createResource(datasetUri)
                             .addProperty(HYDRA_MEMBER, model.createProperty(datasetUri))
                             .addProperty(RDF.type, VOID.Dataset)
-                            .addProperty(DCTerms.title, "The Share-VDE Project Dataset", "en")
+                            .addProperty(DCTerms.title, datasetName)
                             .addProperty(DCTerms.source, "<" + datasetUri + ">")
-                            .addProperty(DCTerms.description,
-                                    "Share-VDE (SVDE) is a library-driven initiative which brings together the " +
-                                       "bibliographic catalogues and authority files of a community of libraries in " +
-                                       "a shared discovery environment based on linked data.", "en")
                             .addProperty(RDF.type, HYDRA_COLLECTION )
                             .addProperty(VOID.subset, model.createProperty(baseUrl));
+
+        ofNullable(datasetDescription).filter(not(String::isBlank)).ifPresent(description -> dataset.addProperty(DCTerms.description, description));
 
         response.getDatasetCardinality().stream()
                                         .map(model::createTypedLiteral)
                                         .findFirst()
                                         .ifPresent(count -> dataset.addLiteral(TOTAL_MATCHES, count)
                                                                    .addLiteral(VOID.triples, count));
-
-
         var fragment = model.createResource(fragmentUri)
                             .addProperty(RDF.type, HYDRA_COLLECTION)
                             .addProperty(RDF.type, HYDRA_PARTIAL_COLLECTION)
                             .addProperty(RDF.type, HYDRA_PAGED_COLLECTION)
                             .addProperty(VOID.subset, datasetUri)
-                            .addProperty(DCTerms.title, "Linked Data Fragment of the Share-VDE Dataset.", "en")
-                            .addProperty(DCTerms.description, "Linked Data Fragment of the Share-VDE Dataset related to <" + fragmentUri + ">", "en")
                             .addProperty(DCTerms.source, "<" + datasetUri + ">")
                             .addProperty(MAX_STATEMENTS_IN_PAGE, model.createTypedLiteral(maxStatementsInPage));
+
+        fragment.addProperty(DCTerms.title, ofNullable(fragmentName).filter(not(String::isBlank)).orElseGet( () -> datasetName + ": Linked Data Fragment"));
+        ofNullable(fragmentDescription).filter(not(String::isBlank)).ifPresent(description -> fragment.addProperty(DCTerms.description, description));
 
         response.getFragmentCardinality().stream()
                                          .map(model::createTypedLiteral)
@@ -202,6 +215,7 @@ public class LinkedDataFragment {
             return serviceFactory.getBean(weAreInGraphContext ? QUAD_PATTERN_RESOLVER : TRIPLE_PATTERN_RESOLVER,
                                           LinkedDataFragmentResolver.class);
         } catch (NoSuchBeanDefinitionException exception) {
+            log.warn(MessageCatalog._00003_NO_PATTERN_RESOLVER);
             return NO_OP_RESOLVER;
         }
     }

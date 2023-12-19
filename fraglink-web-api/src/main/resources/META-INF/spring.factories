@@ -1,1 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.spaziocodice.labs.fraglink.WebConfiguration,com.spaziocodice.labs.fraglink.ContentNegotiationConfiguration

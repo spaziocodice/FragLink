@@ -33,6 +33,7 @@
     <modules>
         <module>fraglink-sdk</module>
         <module>fraglink-web-api</module>
+        <module>fraglink-starter</module>
     </modules>
     <scm>
 		<connection>scm:git:ssh://git@github.com:spaziocodice/fraglink.git</connection>

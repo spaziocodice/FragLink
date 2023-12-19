@@ -4,7 +4,7 @@ import com.spaziocodice.labs.fraglink.converters.RDFMessageConverter;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.WebContent;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import static org.apache.jena.riot.Lang.JSONLD;
 
-@Configuration
+@AutoConfiguration
 public class ContentNegotiationConfiguration implements WebMvcConfigurer {
 
     private final static Map<String, MediaType> SUPPORTED_TRIPLES_MEDIA_TYPES = new HashMap<>() {{

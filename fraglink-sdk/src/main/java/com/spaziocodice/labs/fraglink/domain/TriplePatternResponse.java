@@ -17,6 +17,9 @@ public class TriplePatternResponse extends LinkedDataFragmentResponse<Statement>
     }
 
     public Model patternSolution() {
-        return matches.stream().findFirst().map(Statement::getModel).orElseGet(ModelFactory::createDefaultModel);
+        return matches.stream()
+                        .findFirst()
+                        .map(Statement::getModel)
+                        .orElseGet(ModelFactory::createDefaultModel);
     }
 }

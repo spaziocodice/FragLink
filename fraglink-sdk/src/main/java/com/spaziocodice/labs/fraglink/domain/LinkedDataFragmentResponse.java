@@ -7,9 +7,7 @@ import org.apache.jena.rdf.model.Model;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.OptionalLong;
 
-import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 @NoArgsConstructor
