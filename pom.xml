@@ -35,9 +35,9 @@
         <module>fraglink-web-api</module>
         <module>fraglink-starter</module>
     </modules>
-    <scm>
-		<connection>scm:git:ssh://git@github.com:spaziocodice/fraglink.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:spaziocodice/fraglink.git</developerConnection>
+	<scm>
+		<connection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</developerConnection>
 	</scm>
 	<distributionManagement>
 		<repository>
