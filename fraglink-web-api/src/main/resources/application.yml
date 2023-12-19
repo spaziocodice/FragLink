@@ -1,0 +1,5 @@
+fraglink:
+  base:
+    url: https://fragments.svde.org
+  page:
+    maxStatements: 50

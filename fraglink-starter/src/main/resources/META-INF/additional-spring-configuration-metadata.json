@@ -1,0 +1,35 @@
+{
+  "properties": [
+    {
+      "name": "fraglink.base.url",
+      "type": "java.lang.String",
+      "description": "The Base URL of the resource which will provide Linked data fragments (e.g. https://fragments.myproject.com"
+    },
+    {
+      "name": "fraglink.page.maxStatements",
+      "type": "java.lang.Integer",
+      "description": "(Optional) The maximum number of statements returned in each page of a Linked Data Fragment partial representation",
+      "defaultValue": 100
+    },
+    {
+      "name": "fraglink.dataset.name",
+      "type": "java.lang.String",
+      "description": "The dataset name."
+    },
+    {
+      "name": "fraglink.dataset.description",
+      "type": "java.lang.String",
+      "description": "(Optional) A brief description about the underlying dataset."
+    },
+    {
+      "name": "fraglink.fragment.name",
+      "type": "java.lang.String",
+      "description": "(Optional) A name for the returned fragment resource."
+    },
+    {
+      "name": "fraglink.fragment.description",
+      "type": "java.lang.String",
+      "description": "(Optional) A brief description about the returned fragment resource."
+    }
+  ]
+}
