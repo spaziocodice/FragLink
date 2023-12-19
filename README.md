@@ -35,5 +35,5 @@ That's all!
 Assuming you already set up everything in your SpringBoot module, after starting the server you should see the following messages:
 
 ```
-2023-12-19 ... : <FRAGLINK-00001> : FragLink v1.0.0-SNAPSHOT has been enabled on this server. Do not use a SNAPSHOT version in production!
+... : <FRAGLINK-00001> : FragLink v1.0.0-SNAPSHOT has been enabled on this server. Do not use a SNAPSHOT version in production!
 ```
