@@ -1,4 +1,4 @@
-<p><img src="![image](https://github.com/spaziocodice/FragLink/assets/7569632/7a28703a-508b-4e8b-94ac-263385f42b8c)"/></p>
+<p><img src="https://github.com/spaziocodice/FragLink/assets/7569632/7a28703a-508b-4e8b-94ac-263385f42b8c"/></p>
 <br/>
 FragLink enables [Linked Data Fragments](https://linkeddatafragments.org/) capabilities to your Server. 
 It's not a server itself, instead, it comes as a SpringBoot autoconfigure module that you can easily plug into your RDF Server.
