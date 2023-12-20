@@ -56,7 +56,7 @@ The server is running, great! Linked Data Fragments are exposed through the root
 https://fragments.yourproject.org{subject, predicate, object, graph, page}
 ```
 
-However, being a triple/quad pattern resolver, it doesn't still know where to fetch data. The default implementation is a simple NoOp, meaning no data is returned in response, only metadata.
+However, being a triple/quad pattern resolver, it doesn't still know how to fetch data. The default implementation is a simple NoOp, meaning no data is returned in response, only metadata.
 Here's an example (empty) response: 
 
 ```
