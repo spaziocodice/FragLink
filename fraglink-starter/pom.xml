@@ -10,6 +10,20 @@
     </parent>
     <artifactId>fraglink-starter</artifactId>
     <name>FragLink: SpringBoot Starter</name>
+    <scm>
+        <connection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</developerConnection>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>fraglink-package-registry</id>
+            <url>https://gitlab.com/api/v4/projects/52914288/packages/maven</url>
+        </repository>
+        <snapshotRepository>
+            <id>fraglink-package-registry</id>
+            <url>https://gitlab.com/api/v4/projects/52914288/packages/maven</url>
+        </snapshotRepository>
+    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -36,10 +36,10 @@
         <module>fraglink-starter</module>
     </modules>
     <scm>
-		<connection>scm:git:ssh://git@github.com:spaziocodice/fraglink.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:spaziocodice/fraglink.git</developerConnection>
-	</scm>
-	<distributionManagement>
+        <connection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</developerConnection>
+    </scm>
+    <distributionManagement>
 		<repository>
 			<id>fraglink-package-registry</id>
 			<url>https://gitlab.com/api/v4/projects/52914288/packages/maven</url>
