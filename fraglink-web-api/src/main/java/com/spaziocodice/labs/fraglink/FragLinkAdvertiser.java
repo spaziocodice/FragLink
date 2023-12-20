@@ -7,20 +7,29 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 @Slf4j
 public class FragLinkAdvertiser implements ApplicationListener<ContextRefreshedEvent> {
 
-    @Autowired
-    BuildProperties build;
-
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        var version = build.getVersion();
-        if (version.endsWith("SNAPSHOT")) {
-            log.info(MessageCatalog._00001_FRAGLINK_SNAPSHOT_ENABLED, build.getVersion(), build.getTime());
-            log.info(MessageCatalog._00002_SNAPSHOT_WARN, build.getVersion(), build.getTime());
-        } else {
-            log.info(MessageCatalog._00001_FRAGLINK_RELEASE_ENABLED, build.getVersion(), build.getTime());
+        var version = version();
+        log.info(version.endsWith("SNAPSHOT")
+                        ? MessageCatalog._00001_FRAGLINK_SNAPSHOT_ENABLED
+                        : MessageCatalog._00001_FRAGLINK_RELEASE_ENABLED, version);
+    }
+
+    public String version() {
+        try (InputStream stream = getClass().getResourceAsStream("/version.properties")) {
+            var properties = new Properties();
+            properties.load(stream);
+
+            return properties.getProperty("version", "N.A.");
+        } catch(IOException exception) {
+            return "N.A.";
         }
     }
 }
