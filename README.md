@@ -1,14 +1,15 @@
 <p><img src="https://github.com/spaziocodice/FragLink/assets/7569632/7a28703a-508b-4e8b-94ac-263385f42b8c"/></p>
 <br/>
-FragLink enables [Linked Data Fragments](https://linkeddatafragments.org/) capabilities to your Server. 
-It's not a server itself, instead, it comes as a SpringBoot autoconfigure module that you can easily plug into your RDF Server.
+
+FragLink enables [Linked Data Fragments](https://linkeddatafragments.org) capabilities to your Server.   
+It's not a server itself. Instead, it comes as a SpringBoot autoconfigure module that you can easily plug into your RDF Server.
 
 ## Quick Start
 FragLink is written in Java and makes use of the Spring Framework. Specifically, it is an autoconfigure module, which is supposed to be declared as a dependency in a SpringBoot (Server) project.  
 
-### 1. Create your own SpringBoot project
-This will be your Linked Data Fragment Server. It is strongly recommended to use [Spring initializr](https://start.spring.io/) for defining the initial shape of the module (e.g. components, dependencies, frameworks, starters). 
-Then, once the project skeleton is created, open the pom.xml (in case you're using Gradle there's a corresponding thing to be defined) and add the following section:
+### 1. Create a SpringBoot project
+This will be your Linked Data Fragment Server. It is strongly recommended to use [Spring initializr](https://start.spring.io/) to define the initial shape of the module (e.g., components, dependencies, frameworks, starters). 
+Then, once the project skeleton is created, open the pom.xml (in case you're using Gradle, there's a corresponding thing to be defined) and add the following section:
 
 ```xml
 <repositories>
@@ -50,7 +51,7 @@ Start you server, after few seconds you should see the following messages:
 ... : <FRAGLINK-00001> : FragLink v1.0.0-SNAPSHOT has been enabled on this server. Do not use a SNAPSHOT version in production!
 ```
 
-The server is running, great! Linked Data Fragments are exposed through the root (/) REST endpoint. The endpoint template is 
+The server is running: great! Linked Data Fragments are exposed through the root (/) REST endpoint. The endpoint template is 
 
 ```
 https://fragments.yourproject.org{subject, predicate, object, graph, page}
@@ -129,10 +130,10 @@ Here's an example (empty) response:
 }
 ```
 
-To create a valid binding for your project, tied to your data source, you must create an implementation of the 
+To create a valid binding in your project tied to your data source, you must create an implementation of  
   
 `com.spaziocodice.labs.fraglink.service.impl.LinkedDataFragmentResolver`  
 
-See the Wiki for further details and...have fun!
+See the Wiki for further details, and...have fun!
 
 
