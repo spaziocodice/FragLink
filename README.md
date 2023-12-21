@@ -9,7 +9,9 @@ FragLink is written in Java and makes use of the Spring Framework. Specifically,
 
 ### 1. Create a SpringBoot project
 This will be your Linked Data Fragment Server. It is strongly recommended to use [Spring initializr](https://start.spring.io/) to define the initial shape of the module (e.g., components, dependencies, frameworks, starters). 
-Then, once the project skeleton is created, open the pom.xml (in case you're using Gradle, there's a corresponding thing to be defined) and add the following section:
+
+### 2. Maven repository and Fraglink dependency.
+Then, once the project skeleton is created, open the pom.xml (in case you're using Gradle, there's a corresponding configuration) and add the following section:
 
 ```xml
 <repositories>
@@ -31,8 +33,9 @@ Then, in the dependencies section:
   <version>1.0.0</version>
 </dependency>
 ```
- 
-Assuming you already set up everything in your SpringBoot module (e.g. dependencies and so on), here's the minimal configuration required by FragLink:
+
+### 3. Configuration
+Assuming you already set up everything in your SpringBoot module (e.g., dependencies and so on), here's the minimal configuration required by FragLink:
 
 ```yaml
 fraglink:
@@ -45,6 +48,7 @@ fraglink:
     description: "An optional description about the project"
 ```
 
+### 4. Start
 Start you server, after few seconds you should see the following messages:
 
 ```
@@ -130,10 +134,11 @@ Here's an example (empty) response:
 }
 ```
 
+### 4. Linked Data Fragment Resolver
 To create a valid binding in your project tied to your data source, you must create an implementation of  
   
 `com.spaziocodice.labs.fraglink.service.impl.LinkedDataFragmentResolver`  
 
-See the Wiki for further details, and...have fun!
+The interface contains a single method, which takes a triple/quad pattern in input and expects the list of matching triples in output.
 
 
