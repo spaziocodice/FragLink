@@ -1,8 +1,7 @@
 <p><img src="https://github.com/spaziocodice/FragLink/assets/7569632/62918ccc-54af-472b-8732-acfce92a1adf"/></p>
 <br/>
 
-FragLink enables [Linked Data Fragments](https://linkeddatafragments.org) capabilities to your Server.   
-It's not a server itself. Instead, it comes as a SpringBoot autoconfigure module that you can easily plug into your RDF Server.
+FragLink enables [Linked Data Fragments](https://linkeddatafragments.org) capabilities to your Server. It's not a server itself. Instead, it comes as a SpringBoot autoconfigure module that you can easily plug into your RDF Server.
 
 ## Quick Start
 FragLink is written in Java and makes use of the Spring Framework. Specifically, it is an autoconfigure module, which is supposed to be declared as a dependency in a SpringBoot (Server) project.  
