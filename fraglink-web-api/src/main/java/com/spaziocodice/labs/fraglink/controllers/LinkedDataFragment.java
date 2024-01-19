@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -81,9 +82,22 @@ public class LinkedDataFragment {
     @PostConstruct
     public void init() {
         this.template = baseUrl + "{subject,predicate,object,graph,page}";
+        this.baseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
     }
 
-    @GetMapping("/")
+    @GetMapping("/{provenanceCode}")
+    public Dataset linkedDataFragment(
+            @PathVariable("provenanceCode") String provenance,
+            @RequestParam(name = SUBJECT_PARAMETER_NAME, required = false) String subject,
+            @RequestParam(name = PREDICATE_PARAMETER_NAME, required = false) String predicate,
+            @RequestParam(name = OBJECT_PARAMETER_NAME, required = false) String object,
+            @RequestParam(name = GRAPH_PARAMETER_NAME, required = false) String graph,
+            @RequestParam(name = PAGE_NUMBER_PARAMETER_NAME, required = false) Integer pageNumber,
+            HttpServletRequest request) {
+        return null;
+    }
+
+    @GetMapping
     public Dataset linkedDataFragment(
             @RequestParam(name = SUBJECT_PARAMETER_NAME, required = false) String subject,
             @RequestParam(name = PREDICATE_PARAMETER_NAME, required = false) String predicate,
@@ -116,10 +130,10 @@ public class LinkedDataFragment {
     private Model withMetadata(
             Model model,
             LinkedDataFragmentResponse<?> response,
-            String datasetUri,
-            String metadataUri,
-            String fragmentUri) {
-        model.createResource(metadataUri).addProperty(FOAF.primaryTopic, model.createProperty(datasetUri));
+            String datasetUri,  // #dataset
+            String metadataUri, // #metadata
+            String fragmentUri) { // uri corrente /en
+        model.createResource(metadataUri).addProperty(FOAF.primaryTopic, model.createResource(fragmentUri));
 
         var dataset = model.createResource(datasetUri)
                             .addProperty(HYDRA_MEMBER, model.createProperty(datasetUri))
