@@ -31,9 +31,7 @@ public class RDFMessageConverter extends AbstractGenericHttpMessageConverter<Dat
 
     @Override
     protected void writeInternal(Dataset dataset, Type type, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-        if (ContentNegotiationConfiguration.TRIPLES_SYNTAXES.contains(syntax)) {
-            RDFDataMgr.write(outputMessage.getBody(), dataset.getUnionModel().isEmpty() ? dataset.getDefaultModel() : dataset.getUnionModel(), syntax);
-        } else if (ContentNegotiationConfiguration.QUADS_SYNTAXES.contains(syntax)) {
+        if (ContentNegotiationConfiguration.QUADS_SYNTAXES.contains(syntax)) {
             RDFDataMgr.write(outputMessage.getBody(), dataset, syntax);
         } else {
             throw new HttpMessageNotWritableException("Malformed Syntax / Response combination.");
