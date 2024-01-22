@@ -39,7 +39,7 @@ public interface Identifiers {
 
     Property PREVIOUS_PAGE = createProperty(HYDRA + "previousPage");
 
-    Property LAST_PAGE = createProperty(HYDRA + "previousPage");
+    Property LAST_PAGE = createProperty(HYDRA + "lastPage");
 
     String PAGE_NUMBER_PARAMETER_NAME = "page";
 
