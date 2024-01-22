@@ -4,14 +4,14 @@
     <parent>
         <groupId>com.spaziocodice.labs.rdf</groupId>
         <artifactId>fraglink</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.1.1</version>
     </parent>
     <artifactId>fraglink-starter</artifactId>
     <name>FragLink: SpringBoot Starter</name>
     <scm>
         <connection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>v1.1.1</tag>
   </scm>
     <distributionManagement>
         <repository>
