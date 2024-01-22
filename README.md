@@ -29,7 +29,7 @@ Then, in the dependencies section:
 <dependency>
   <groupId>com.spaziocodice.labs.rdf</groupId>
   <artifactId>fraglink-starter</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 
@@ -43,15 +43,15 @@ fraglink:
   page:
     maxStatements: 50 (the maximum number of statements returned in response)
   dataset:
-    name: "The dataset / project name" 
-    description: "An optional description about the project"
+    name: "The dataset project/name" 
+    description: "An optional description of the project."
 ```
 
 ### 4. Start
-Start you server, after few seconds you should see the following messages:
+Start your server. After a few seconds, you should see the following messages:
 
 ```
-... : <FRAGLINK-00001> : FragLink v1.0.0 has been enabled on this server.
+... : <FRAGLINK-00001> : FragLink v1.1.1 has been enabled on this server.
 ```
 
 The server is running: great! Linked Data Fragments are exposed through the root (/) REST endpoint. The endpoint template is 
@@ -64,25 +64,11 @@ However, being a triple/quad pattern resolver, it doesn't still know how to fetc
 Here's an example (empty) response: 
 
 ```
-<https://fragments.svde.org#metadata> {
-    <https://fragments.svde.org#metadata>
-            <http://xmlns.com/foaf/0.1/primaryTopic>
-                    <https://fragments.svde.org#dataset> .
-    
-    <https://fragments.svde.org#dataset>
-            a       <http://www.w3.org/ns/hydra/core#Collection> , <http://rdfs.org/ns/void#Dataset>;
-            <http://purl.org/dc/terms/description>
-                    "Share-VDE (SVDE) is a library-driven initiative which brings together the bibliographic catalogues and authority files of a community of libraries in a shared discovery environment based on linked data.";
-            <http://purl.org/dc/terms/source>
-                    "<https://fragments.svde.org#dataset>";
-            <http://purl.org/dc/terms/title>
-                    "The Share-VDE Project Dataset";
+<https://fragments.yourproject.org/fragments#metadata> {
+    <https://fragments.yourproject.org/fragments#dataset>
+            a       <http://rdfs.org/ns/void#Dataset> , <http://www.w3.org/ns/hydra/core#Collection>;
             <http://rdfs.org/ns/void#subset>
-                    <https://fragments.svde.org>;
-            <http://rdfs.org/ns/void#triples>
-                    "10002392"^^<http://www.w3.org/2001/XMLSchema#long>;
-            <http://www.w3.org/ns/hydra/core#member>
-                    <https://fragments.svde.org#dataset>;
+                    <https://fragments.yourproject.org/fragments>;
             <http://www.w3.org/ns/hydra/core#search>
                     [ <http://www.w3.org/ns/hydra/core#mapping>
                               [ <http://www.w3.org/ns/hydra/core#property>
@@ -102,30 +88,39 @@ Here's an example (empty) response:
                                 <http://www.w3.org/ns/hydra/core#variable>
                                         "object"
                               ];
-                      <http://www.w3.org/ns/hydra/core#mapping>
-                              [ <http://www.w3.org/ns/hydra/core#property>
-                                        "http://www.w3.org/ns/sparql-service-description#";
-                                <http://www.w3.org/ns/hydra/core#variable>
-                                        "object"
-                              ];
                       <http://www.w3.org/ns/hydra/core#template>
-                              "https://fragments.svde.org{subject,predicate,object,graph,page}"
-                    ];
-            <http://www.w3.org/ns/hydra/core#totalItems>
-                    "0"^^<http://www.w3.org/2001/XMLSchema#long> .
+                              "https://fragments.yourproject.org/fragments{?subject,predicate,object,page}";
+                      <http://www.w3.org/ns/hydra/core#variableRepresentation>
+                              <http://www.w3.org/ns/hydra/core#ExplicitRepresentation>
+                    ] .
     
-    <https://fragments.svde.org/>
-            a       <http://www.w3.org/ns/hydra/core#PagedCollection> , <http://www.w3.org/ns/hydra/core#Collection> , <http://www.w3.org/ns/hydra/core#PartialCollectionView>;
-            <http://purl.org/dc/terms/source>
-                    "<https://fragments.svde.org#dataset>";
-            <http://purl.org/dc/terms/title>
-                    "The Share-VDE Project Dataset: Linked Data Fragment";
+    <https://fragments.yourproject.org#dataset>
+            a       <http://www.w3.org/ns/hydra/core#Collection>;
+            <http://purl.org/dc/elements/1.1/description>
+                    "An optional description of the dataset.";
+            <http://purl.org/dc/elements/1.1/title>
+                    "The Dataset project/name";
+            <http://www.w3.org/ns/hydra/core#member>
+                    <https://fragments.yourproject.org/fragments#dataset> .
+    
+    <https://fragments.yourproject.org/fragments#metadata>
+            <http://xmlns.com/foaf/0.1/primaryTopic>
+                    [ a <https://fragments.yourproject.org/fragments> ] .
+    
+    <https://fragments.yourproject.org/fragments>
+            a       <http://www.w3.org/ns/hydra/core#PartialCollectionView>;
+            <http://purl.org/dc/elements/1.1/description>
+                    "Linked Data Fragment of Share-VDE dataset containing triples matching the pattern {?s ?p ?o ?q}"@en;
+            <http://purl.org/dc/elements/1.1/source>
+                    "https://fragments.yourproject.org/fragments#dataset";
+            <http://purl.org/dc/elements/1.1/title>
+                    "Linked Data Fragment of The Share-VDE Project Dataset"@en;
             <http://rdfs.org/ns/void#subset>
-                    "https://fragments.svde.org#dataset";
+                    <https://fragments.yourproject.org/fragments>;
             <http://rdfs.org/ns/void#triples>
                     "0"^^<http://www.w3.org/2001/XMLSchema#long>;
             <http://www.w3.org/ns/hydra/core#firstPage>
-                    <https://fragments.svde.org/?page=1>;
+                    <https://fragments.yourproject.org/fragments?page=1>;
             <http://www.w3.org/ns/hydra/core#itemsPerPage>
                     "50"^^<http://www.w3.org/2001/XMLSchema#int>;
             <http://www.w3.org/ns/hydra/core#totalItems>
