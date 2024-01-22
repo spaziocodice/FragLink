@@ -12,8 +12,9 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.sparql.vocabulary.FOAF;
-import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.VOID;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -21,13 +22,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.spaziocodice.labs.fraglink.Identifiers.FIRST_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.GRAPH_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_COLLECTION;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_EXPLICIT_REPRESENTATION;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_MAPPING;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_MEMBER;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_PAGED_COLLECTION;
@@ -36,25 +42,26 @@ import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_PROPERTY;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_SEARCH;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TEMPLATE;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE_REPRESENTATION;
 import static com.spaziocodice.labs.fraglink.Identifiers.LAST_PAGE;
-import static com.spaziocodice.labs.fraglink.Identifiers.MAX_STATEMENTS_IN_PAGE;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_ITEMS_PER_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.NEXT_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.OBJECT_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PAGE_NUMBER_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PREDICATE_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PREVIOUS_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.QUAD_PATTERN_RESOLVER;
-import static com.spaziocodice.labs.fraglink.Identifiers.SD;
 import static com.spaziocodice.labs.fraglink.Identifiers.SUBJECT_PARAMETER_NAME;
-import static com.spaziocodice.labs.fraglink.Identifiers.TOTAL_MATCHES;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TOTAL_ITEMS;
 import static com.spaziocodice.labs.fraglink.Identifiers.TRIPLE_PATTERN_RESOLVER;
 import static com.spaziocodice.labs.fraglink.service.impl.TriplePatternResolver.NO_OP_RESOLVER;
 import static java.util.Optional.ofNullable;
-import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.joining;
 
 @RestController
 @Slf4j
-public class LinkedDataFragment {
+@RequestMapping("/fragments")
+    public class LinkedDataFragment {
 
     @Value("${fraglink.page.maxStatements:50}")
     private int maxStatementsInPage;
@@ -68,36 +75,15 @@ public class LinkedDataFragment {
     @Value("${fraglink.dataset.description:}")
     private String datasetDescription;
 
-    @Value("${fraglink.fragment.name:}")
-    private String fragmentName;
-
-    @Value("${fraglink.fragment.description:}")
-    private String fragmentDescription;
-
     @Autowired
     private ApplicationContext serviceFactory;
 
-    private String template;
-
     @PostConstruct
     public void init() {
-        this.template = baseUrl + "{subject,predicate,object,graph,page}";
-        this.baseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+        this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 
-    @GetMapping("/{provenanceCode}")
-    public Dataset linkedDataFragment(
-            @PathVariable("provenanceCode") String provenance,
-            @RequestParam(name = SUBJECT_PARAMETER_NAME, required = false) String subject,
-            @RequestParam(name = PREDICATE_PARAMETER_NAME, required = false) String predicate,
-            @RequestParam(name = OBJECT_PARAMETER_NAME, required = false) String object,
-            @RequestParam(name = GRAPH_PARAMETER_NAME, required = false) String graph,
-            @RequestParam(name = PAGE_NUMBER_PARAMETER_NAME, required = false) Integer pageNumber,
-            HttpServletRequest request) {
-        return null;
-    }
-
-    @GetMapping
+    @GetMapping()
     public Dataset linkedDataFragment(
             @RequestParam(name = SUBJECT_PARAMETER_NAME, required = false) String subject,
             @RequestParam(name = PREDICATE_PARAMETER_NAME, required = false) String predicate,
@@ -105,9 +91,19 @@ public class LinkedDataFragment {
             @RequestParam(name = GRAPH_PARAMETER_NAME, required = false) String graph,
             @RequestParam(name = PAGE_NUMBER_PARAMETER_NAME, required = false) Integer pageNumber,
             HttpServletRequest request) {
-        var datasetUri = baseUrl + "#dataset";
-        var metadataUri = baseUrl + "#metadata";
-        var fragmentUri = baseUrl + request.getRequestURI() + ofNullable(request.getQueryString()).map(value -> "?" + value).orElse("");
+        var model = ModelFactory.createDefaultModel();
+
+        var fragmentIRI = fragmentIRI(request);
+        var fragmentMetadata = model.createResource(fragmentIRI + "#metadata");
+        var fragment = model.createResource(fragmentIRI);
+        var fragmentDataset = model.createResource(baseUrl + request.getRequestURI() + "#dataset");
+
+        var dataset = model.createResource(baseUrl + "#dataset")
+                            .addProperty(HYDRA_MEMBER, fragmentDataset)
+                            .addProperty(RDF.type, HYDRA_COLLECTION);
+
+        ofNullable(datasetName).ifPresent(name -> dataset.addProperty(DC.title, name));
+        ofNullable(datasetDescription).ifPresent(description -> dataset.addProperty(DC.description, description));
 
         var response = resolver(false).linkedDataFragment(
                                                             ofNullable(subject),
@@ -115,113 +111,81 @@ public class LinkedDataFragment {
                                                             ofNullable(object),
                                                             ofNullable(graph),
                                                             ofNullable(pageNumber));
+
+        var templateAndMapping = model.createResource()
+                .addProperty(HYDRA_TEMPLATE, template(request))
+                .addProperty(HYDRA_VARIABLE_REPRESENTATION, HYDRA_EXPLICIT_REPRESENTATION)
+                .addProperty(HYDRA_MAPPING,
+                        model.createResource()
+                                .addProperty(HYDRA_VARIABLE, SUBJECT_PARAMETER_NAME)
+                                .addProperty(HYDRA_PROPERTY, RDF.subject))
+                .addProperty(HYDRA_MAPPING,
+                        model.createResource()
+                                .addProperty(HYDRA_VARIABLE, PREDICATE_PARAMETER_NAME)
+                                .addProperty(HYDRA_PROPERTY, RDF.predicate))
+                .addProperty(HYDRA_MAPPING,
+                        model.createResource()
+                                .addProperty(HYDRA_VARIABLE, OBJECT_PARAMETER_NAME)
+                                .addProperty(HYDRA_PROPERTY, RDF.object));
+
+        fragmentMetadata.addProperty(FOAF.primaryTopic, model.createResource(fragment));
+
+        fragmentDataset.addProperty(RDF.type, VOID.Dataset)
+                       .addProperty(RDF.type, HYDRA_COLLECTION)
+                       .addProperty(VOID.subset, fragment)
+                       .addProperty(HYDRA_SEARCH, templateAndMapping);
+
+        var fragmentCardinality = response.getFragmentCardinality()
+                                            .map(model::createTypedLiteral)
+                                            .orElseGet( () -> model.createTypedLiteral(0L));
+
+        fragment.addProperty(VOID.subset, fragment)
+                .addProperty(RDF.type, HYDRA_PARTIAL_COLLECTION)
+                .addProperty(DC.source, fragmentDataset.getURI())
+                .addLiteral(HYDRA_TOTAL_ITEMS, fragmentCardinality)
+                .addLiteral(VOID.triples, fragmentCardinality)
+                .addProperty(HYDRA_ITEMS_PER_PAGE, model.createTypedLiteral(maxStatementsInPage));
+
+        if (response.isPaged()) {
+            fragmentDataset.addProperty(RDF.type, HYDRA_PAGED_COLLECTION);
+            fragment.addProperty(RDF.type, HYDRA_PAGED_COLLECTION);
+        }
+
+        ofNullable(datasetName).ifPresent(name -> {
+            fragment.addProperty(DC.title, "Linked Data Fragment of " + name , "en");
+            fragment.addProperty(DC.description, "Linked Data Fragment of Share-VDE dataset containing triples matching the pattern " + pattern(request), "en");
+        });
+
         return DatasetFactory.create()
                     .setDefaultModel(response.patternSolution())
-                    .addNamedModel(metadataUri,
-                                    withControls(
-                                            withMetadata(ModelFactory.createDefaultModel(),
-                                                         response,
-                                                         datasetUri, metadataUri, fragmentUri),
-                                            response,
-                                            datasetUri,
-                                            fragmentUri));
-    }
-
-    private Model withMetadata(
-            Model model,
-            LinkedDataFragmentResponse<?> response,
-            String datasetUri,  // #dataset
-            String metadataUri, // #metadata
-            String fragmentUri) { // uri corrente /en
-        model.createResource(metadataUri).addProperty(FOAF.primaryTopic, model.createResource(fragmentUri));
-
-        var dataset = model.createResource(datasetUri)
-                            .addProperty(HYDRA_MEMBER, model.createProperty(datasetUri))
-                            .addProperty(RDF.type, VOID.Dataset)
-                            .addProperty(DCTerms.title, datasetName)
-                            .addProperty(DCTerms.source, "<" + datasetUri + ">")
-                            .addProperty(RDF.type, HYDRA_COLLECTION )
-                            .addProperty(VOID.subset, model.createProperty(baseUrl));
-
-        ofNullable(datasetDescription).filter(not(String::isBlank)).ifPresent(description -> dataset.addProperty(DCTerms.description, description));
-
-        response.getDatasetCardinality().stream()
-                                        .map(model::createTypedLiteral)
-                                        .findFirst()
-                                        .ifPresent(count -> dataset.addLiteral(TOTAL_MATCHES, count)
-                                                                   .addLiteral(VOID.triples, count));
-        var fragment = model.createResource(fragmentUri)
-                            .addProperty(RDF.type, HYDRA_COLLECTION)
-                            .addProperty(RDF.type, HYDRA_PARTIAL_COLLECTION)
-                            .addProperty(RDF.type, HYDRA_PAGED_COLLECTION)
-                            .addProperty(VOID.subset, datasetUri)
-                            .addProperty(DCTerms.source, "<" + datasetUri + ">")
-                            .addProperty(MAX_STATEMENTS_IN_PAGE, model.createTypedLiteral(maxStatementsInPage));
-
-        fragment.addProperty(DCTerms.title, ofNullable(fragmentName).filter(not(String::isBlank)).orElseGet( () -> datasetName + ": Linked Data Fragment"));
-        ofNullable(fragmentDescription).filter(not(String::isBlank)).ifPresent(description -> fragment.addProperty(DCTerms.description, description));
-
-        response.getFragmentCardinality().stream()
-                                         .map(model::createTypedLiteral)
-                                         .findFirst()
-                                         .ifPresent(count -> fragment.addLiteral(TOTAL_MATCHES, count)
-                                                                     .addLiteral(VOID.triples, count));
-        return model;
+                    .addNamedModel(fragmentMetadata.getURI(), withControls(model, response, fragment, ofNullable(pageNumber)));
     }
 
     public Model withControls(Model model,
                               LinkedDataFragmentResponse<?> response,
-                              String datasetUri,
-                              String fragmentUri) {
-        var fragmentUrl = url(fragmentUri);
-        var fragment = model.createResource(fragmentUri);
+                              Resource fragment,
+                              Optional<Integer> pageNumber) {
+        var fragmentUrl = url(fragment.getURI());
         var firstPageUri = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, "1").toString());
-
         fragment.addProperty(FIRST_PAGE, firstPageUri);
 
-        final int pageNumber = response.getPageNumber().orElse(1);
-        if (pageNumber > 1) {
-            var prevPageNumber = Long.toString(pageNumber - 1);
+        final int currentPageNumber = pageNumber.orElse(1);
+        if (currentPageNumber > 1) {
+            var prevPageNumber = Long.toString(currentPageNumber - 1);
             var prevPageId = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, prevPageNumber).toString());
             fragment.addProperty(PREVIOUS_PAGE, prevPageId);
         }
 
         if (response.getFragmentCardinality().isPresent()) {
             var lastPageNumber = (response.getFragmentCardinality().get() / maxStatementsInPage) + 1;
-            var nextPageId = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, Long.toString(pageNumber + 1)).toString());
+            var nextPageId = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, Long.toString(currentPageNumber + 1)).toString());
             fragment.addProperty(NEXT_PAGE, nextPageId);
-            if (pageNumber != lastPageNumber) {
+            if (currentPageNumber != lastPageNumber) {
                 var lastPageId = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, Long.toString(lastPageNumber)).toString());
                 fragment.addProperty(LAST_PAGE, lastPageId);
             }
         }
-
-        var triplePattern = model.createResource()
-                                .addProperty(HYDRA_TEMPLATE, template)
-                                .addProperty(HYDRA_MAPPING,
-                                              model.createResource()
-                                                   .addProperty(HYDRA_VARIABLE, SUBJECT_PARAMETER_NAME)
-                                                   .addProperty(HYDRA_PROPERTY, RDF.subject))
-                                .addProperty(HYDRA_MAPPING,
-                                             model.createResource()
-                                                  .addProperty(HYDRA_VARIABLE, PREDICATE_PARAMETER_NAME)
-                                                  .addProperty(HYDRA_PROPERTY, RDF.predicate))
-                                .addProperty(HYDRA_MAPPING,
-                                             model.createResource()
-                                                  .addProperty(HYDRA_VARIABLE, OBJECT_PARAMETER_NAME)
-                                                  .addProperty(HYDRA_PROPERTY, RDF.object))
-                                .addProperty(HYDRA_MAPPING,
-                                    model.createResource()
-                                         .addProperty(HYDRA_VARIABLE, OBJECT_PARAMETER_NAME)
-                                         .addProperty(HYDRA_PROPERTY, SD));
-
-        model.createResource(datasetUri).addProperty(HYDRA_SEARCH, triplePattern );
         return model;
-    }
-
-    @SneakyThrows
-    private URIBuilder url(String baseUrl) {
-        return new URIBuilder(baseUrl);
     }
 
     public LinkedDataFragmentResolver<?> resolver(boolean weAreInGraphContext) {
@@ -232,5 +196,42 @@ public class LinkedDataFragment {
             log.warn(MessageCatalog._00003_NO_PATTERN_RESOLVER);
             return NO_OP_RESOLVER;
         }
+    }
+
+    @SneakyThrows
+    private URIBuilder url(String baseUrl) {
+        return new URIBuilder(baseUrl);
+    }
+
+    private String template(HttpServletRequest request) {
+        return baseUrl +
+                request.getRequestURI() +
+                "{?" +
+                    SUBJECT_PARAMETER_NAME + "," +
+                    PREDICATE_PARAMETER_NAME + "," +
+                    OBJECT_PARAMETER_NAME + "," +
+                    "page" +
+                "}";
+    }
+
+    private String pattern(HttpServletRequest request) {
+        return Stream.of(ofNullable(request.getParameter(SUBJECT_PARAMETER_NAME)).orElse("?s"),
+                        ofNullable(request.getParameter(PREDICATE_PARAMETER_NAME)).orElse("?p"),
+                        ofNullable(request.getParameter(OBJECT_PARAMETER_NAME)).orElse("?o"),
+                        ofNullable(request.getParameter(GRAPH_PARAMETER_NAME)).orElse("?q"))
+                .filter(Objects::nonNull)
+                .collect(joining(" ", "{", "}"));
+    }
+
+    private String fragmentIRI(HttpServletRequest request) {
+        var iri = baseUrl +
+                request.getRequestURI() +
+                Stream.of(ofNullable(request.getParameter(SUBJECT_PARAMETER_NAME)).map(v -> SUBJECT_PARAMETER_NAME + "=" + v).orElse(null),
+                                ofNullable(request.getParameter(PREDICATE_PARAMETER_NAME)).map(v -> PREDICATE_PARAMETER_NAME + "=" + v).orElse(null),
+                                ofNullable(request.getParameter(OBJECT_PARAMETER_NAME)).map(v -> OBJECT_PARAMETER_NAME + "=" + v).orElse(null),
+                                ofNullable(request.getParameter(OBJECT_PARAMETER_NAME)).map(v -> OBJECT_PARAMETER_NAME + "=" + v).orElse(null))
+                        .filter(Objects::nonNull)
+                        .collect(joining("&", "?", ""));
+        return iri.endsWith("?") ? iri.substring(0, iri.length() - 1) : iri;
     }
 }

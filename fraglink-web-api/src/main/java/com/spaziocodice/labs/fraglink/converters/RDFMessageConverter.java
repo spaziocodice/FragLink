@@ -25,7 +25,7 @@ public class RDFMessageConverter extends AbstractGenericHttpMessageConverter<Dat
     public RDFMessageConverter(String mediaType) {
         super(MediaType.parseMediaType(mediaType));
         this.syntax = WebContent.contentTypeXML.equals(mediaType)
-                            ? Lang.RDFXML
+                            ? Lang.TRIG
                             : RDFLanguages.contentTypeToLang(mediaType);
     }
 
