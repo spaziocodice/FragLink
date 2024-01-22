@@ -12,14 +12,16 @@ public interface Identifiers {
     String HYDRA = "http://www.w3.org/ns/hydra/core#";
     String SD = "http://www.w3.org/ns/sparql-service-description#";
 
-    Property TOTAL_MATCHES = createProperty(HYDRA + "totalItems");
+    Property HYDRA_TOTAL_ITEMS = createProperty(HYDRA + "totalItems");
 
-    Property MAX_STATEMENTS_IN_PAGE = createProperty(HYDRA + "itemsPerPage");
+    Property HYDRA_ITEMS_PER_PAGE = createProperty(HYDRA + "itemsPerPage");
 
     Property HYDRA_SEARCH = createProperty(HYDRA + "search");
 
     Property HYDRA_TEMPLATE = createProperty(HYDRA + "template");
 
+    Property HYDRA_VARIABLE_REPRESENTATION = createProperty(HYDRA + "variableRepresentation");
+    Property HYDRA_EXPLICIT_REPRESENTATION = createProperty(HYDRA + "ExplicitRepresentation");
     Property HYDRA_MAPPING = createProperty(HYDRA + "mapping");
 
     Property HYDRA_VARIABLE = createProperty(HYDRA + "variable");

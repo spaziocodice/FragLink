@@ -14,6 +14,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.sparql.vocabulary.FOAF;
+import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.VOID;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
 import static com.spaziocodice.labs.fraglink.Identifiers.FIRST_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.GRAPH_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_COLLECTION;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_EXPLICIT_REPRESENTATION;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_MAPPING;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_MEMBER;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_PAGED_COLLECTION;
@@ -43,17 +45,17 @@ import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_PROPERTY;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_SEARCH;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TEMPLATE;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE_REPRESENTATION;
 import static com.spaziocodice.labs.fraglink.Identifiers.LAST_PAGE;
-import static com.spaziocodice.labs.fraglink.Identifiers.MAX_STATEMENTS_IN_PAGE;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_ITEMS_PER_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.NEXT_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.OBJECT_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PAGE_NUMBER_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PREDICATE_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PREVIOUS_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.QUAD_PATTERN_RESOLVER;
-import static com.spaziocodice.labs.fraglink.Identifiers.SD;
 import static com.spaziocodice.labs.fraglink.Identifiers.SUBJECT_PARAMETER_NAME;
-import static com.spaziocodice.labs.fraglink.Identifiers.TOTAL_MATCHES;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TOTAL_ITEMS;
 import static com.spaziocodice.labs.fraglink.Identifiers.TRIPLE_PATTERN_RESOLVER;
 import static com.spaziocodice.labs.fraglink.service.impl.TriplePatternResolver.NO_OP_RESOLVER;
 import static java.util.Optional.ofNullable;
@@ -85,11 +87,8 @@ import static java.util.function.Predicate.not;
     @Autowired
     private ApplicationContext serviceFactory;
 
-    private String template;
-
     @PostConstruct
     public void init() {
-        this.template = baseUrl + "{subject,predicate,object,graph,page}";
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 
@@ -105,6 +104,23 @@ import static java.util.function.Predicate.not;
         return null;
     }
 
+    private String template(HttpServletRequest request) {
+        return baseUrl +
+                request.getRequestURI() +
+                "{?" + SUBJECT_PARAMETER_NAME + "," +
+                      PREDICATE_PARAMETER_NAME + "," +
+                      OBJECT_PARAMETER_NAME + ",page}";
+    }
+
+    private String pattern(HttpServletRequest request) {
+        return Stream.of(ofNullable(request.getParameter(SUBJECT_PARAMETER_NAME)).orElse("?s"),
+                        ofNullable(request.getParameter(PREDICATE_PARAMETER_NAME)).orElse("?p"),
+                        ofNullable(request.getParameter(OBJECT_PARAMETER_NAME)).orElse("?o"),
+                        ofNullable(request.getParameter(GRAPH_PARAMETER_NAME)).orElse("?q"))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.joining(" ", "{", "}"));
+    }
+
     private String fragmentIRI(HttpServletRequest request) {
         var iri = baseUrl +
                     request.getRequestURI() +
@@ -117,6 +133,10 @@ import static java.util.function.Predicate.not;
         return iri.endsWith("?") ? iri.substring(0, iri.length() - 1) : iri;
     }
 
+    private String fragmentURL(HttpServletRequest request) {
+        return baseUrl + request.getRequestURI() + ofNullable(request.getQueryString()).map(value -> "?" + value).orElse("");
+    }
+
     @GetMapping()
     public Dataset linkedDataFragment(
             @RequestParam(name = SUBJECT_PARAMETER_NAME, required = false) String subject,
@@ -127,10 +147,13 @@ import static java.util.function.Predicate.not;
             HttpServletRequest request) {
         var model = ModelFactory.createDefaultModel();
 
+        var fragmentIRI = fragmentIRI(request);
+        var fragmentMetadata = model.createResource(fragmentIRI + "#metadata");
+        var fragment = model.createResource(fragmentIRI);
+        var fragmentDataset = model.createResource(baseUrl + request.getRequestURI() + "#dataset");
+        var fragmentURL = fragmentURL(request);
+
         var dataset = model.createResource(baseUrl + "#dataset");
-        var metadataUri = baseUrl + "#metadata";
-        var fragment = model.createResource(fragmentIRI(request));
-        var fragmentURL = baseUrl + request.getRequestURI() + ofNullable(request.getQueryString()).map(value -> "?" + value).orElse("");
 
         var response = resolver(false).linkedDataFragment(
                                                             ofNullable(subject),
@@ -139,21 +162,11 @@ import static java.util.function.Predicate.not;
                                                             ofNullable(graph),
                                                             ofNullable(pageNumber));
 
-        // fragmentIRI void:triples 129
-        fragment.addLiteral(VOID.triples,
-                               response.getFragmentCardinality()
-                                       .map(model::createTypedLiteral)
-                                       .orElseGet( () -> model.createTypedLiteral(0L)))
-                .addProperty(RDF.type, HYDRA_COLLECTION)
-                .addProperty(RDF.type, HYDRA_PARTIAL_COLLECTION)
-                .addProperty(RDF.type, HYDRA_PAGED_COLLECTION)
-                .addProperty(MAX_STATEMENTS_IN_PAGE, model.createTypedLiteral(maxStatementsInPage));
 
-        dataset.addProperty(RDF.type, VOID.Dataset)
-               .addProperty(VOID.subset, fragment);
 
         var templateAndMapping = model.createResource()
-                .addProperty(HYDRA_TEMPLATE, template)
+                .addProperty(HYDRA_TEMPLATE, template(request))
+                .addProperty(HYDRA_VARIABLE_REPRESENTATION, HYDRA_EXPLICIT_REPRESENTATION)
                 .addProperty(HYDRA_MAPPING,
                         model.createResource()
                                 .addProperty(HYDRA_VARIABLE, SUBJECT_PARAMETER_NAME)
@@ -165,19 +178,38 @@ import static java.util.function.Predicate.not;
                 .addProperty(HYDRA_MAPPING,
                         model.createResource()
                                 .addProperty(HYDRA_VARIABLE, OBJECT_PARAMETER_NAME)
-                                .addProperty(HYDRA_PROPERTY, RDF.object))
-                .addProperty(HYDRA_MAPPING,
-                        model.createResource()
-                                .addProperty(HYDRA_VARIABLE, OBJECT_PARAMETER_NAME)
-                                .addProperty(HYDRA_PROPERTY, SD));
+                                .addProperty(HYDRA_PROPERTY, RDF.object));
+//                .addProperty(HYDRA_MAPPING,
+//                        model.createResource()
+//                                .addProperty(HYDRA_VARIABLE, GRAPH_PARAMETER_NAME)
+//                                .addProperty(HYDRA_PROPERTY, ));
 
-        dataset.addProperty(HYDRA_SEARCH, templateAndMapping);
+        fragmentMetadata.addProperty(FOAF.primaryTopic, model.createResource(fragment));
+        dataset.addProperty(HYDRA_MEMBER, fragmentDataset);
 
-        withControls(model, response, dataset, fragment, ofNullable(pageNumber));
+        fragmentDataset.addProperty(RDF.type, VOID.Dataset)
+                       .addProperty(RDF.type, HYDRA_COLLECTION)
+                       .addProperty(VOID.subset, fragment)
+                       .addProperty(HYDRA_SEARCH, templateAndMapping);
+
+        var fragmentCardinality = response.getFragmentCardinality()
+                                            .map(model::createTypedLiteral)
+                                            .orElseGet( () -> model.createTypedLiteral(0L));
+
+        fragment.addProperty(VOID.subset, fragment)
+                .addProperty(RDF.type, HYDRA_PARTIAL_COLLECTION)
+                .addProperty(DC.title, "Linked Data Fragment of Share-VDE", "en")
+                .addProperty(DC.description, "Linked Data Fragment of Share-VDE dataset containing triples matching the pattern " + pattern(request), "en")
+                .addProperty(DC.source, fragmentDataset.getURI())
+                .addLiteral(HYDRA_TOTAL_ITEMS, fragmentCardinality)
+                .addLiteral(VOID.triples, fragmentCardinality)
+                .addProperty(HYDRA_ITEMS_PER_PAGE, model.createTypedLiteral(maxStatementsInPage));
+
+        withControls(model, response, fragment, ofNullable(pageNumber));
 
         return DatasetFactory.create()
                     .setDefaultModel(response.patternSolution())
-                    .addNamedModel(metadataUri, model);
+                    .addNamedModel(fragmentMetadata.getURI(), model);
     }
 
     private Model withMetadata(
@@ -201,7 +233,7 @@ import static java.util.function.Predicate.not;
         response.getDatasetCardinality().stream()
                                         .map(model::createTypedLiteral)
                                         .findFirst()
-                                        .ifPresent(count -> dataset.addLiteral(TOTAL_MATCHES, count)
+                                        .ifPresent(count -> dataset.addLiteral(HYDRA_TOTAL_ITEMS, count)
                                                                    .addLiteral(VOID.triples, count));
         var fragment = model.createResource(fragmentUri)
                             .addProperty(RDF.type, HYDRA_COLLECTION)
@@ -209,7 +241,7 @@ import static java.util.function.Predicate.not;
                             .addProperty(RDF.type, HYDRA_PAGED_COLLECTION)
                             .addProperty(VOID.subset, datasetUri)
                             .addProperty(DCTerms.source, "<" + datasetUri + ">")
-                            .addProperty(MAX_STATEMENTS_IN_PAGE, model.createTypedLiteral(maxStatementsInPage));
+                            .addProperty(HYDRA_ITEMS_PER_PAGE, model.createTypedLiteral(maxStatementsInPage));
 
         fragment.addProperty(DCTerms.title, ofNullable(fragmentName).filter(not(String::isBlank)).orElseGet( () -> datasetName + ": Linked Data Fragment"));
         ofNullable(fragmentDescription).filter(not(String::isBlank)).ifPresent(description -> fragment.addProperty(DCTerms.description, description));
@@ -217,14 +249,13 @@ import static java.util.function.Predicate.not;
         response.getFragmentCardinality().stream()
                                          .map(model::createTypedLiteral)
                                          .findFirst()
-                                         .ifPresent(count -> fragment.addLiteral(TOTAL_MATCHES, count)
+                                         .ifPresent(count -> fragment.addLiteral(HYDRA_TOTAL_ITEMS, count)
                                                                      .addLiteral(VOID.triples, count));
         return model;
     }
 
     public Model withControls(Model model,
                               LinkedDataFragmentResponse<?> response,
-                              Resource dataset,
                               Resource fragment,
                               Optional<Integer> pageNumber) {
         var fragmentUrl = url(fragment.getURI());
@@ -247,27 +278,6 @@ import static java.util.function.Predicate.not;
                 fragment.addProperty(LAST_PAGE, lastPageId);
             }
         }
-
-//        var triplePattern = model.createResource()
-//                                .addProperty(HYDRA_TEMPLATE, template)
-//                                .addProperty(HYDRA_MAPPING,
-//                                              model.createResource()
-//                                                   .addProperty(HYDRA_VARIABLE, SUBJECT_PARAMETER_NAME)
-//                                                   .addProperty(HYDRA_PROPERTY, RDF.subject))
-//                                .addProperty(HYDRA_MAPPING,
-//                                             model.createResource()
-//                                                  .addProperty(HYDRA_VARIABLE, PREDICATE_PARAMETER_NAME)
-//                                                  .addProperty(HYDRA_PROPERTY, RDF.predicate))
-//                                .addProperty(HYDRA_MAPPING,
-//                                             model.createResource()
-//                                                  .addProperty(HYDRA_VARIABLE, OBJECT_PARAMETER_NAME)
-//                                                  .addProperty(HYDRA_PROPERTY, RDF.object))
-//                                .addProperty(HYDRA_MAPPING,
-//                                    model.createResource()
-//                                         .addProperty(HYDRA_VARIABLE, OBJECT_PARAMETER_NAME)
-//                                         .addProperty(HYDRA_PROPERTY, SD));
-//
-//        model.createResource(datasetUri).addProperty(HYDRA_SEARCH, triplePattern );
         return model;
     }
 
