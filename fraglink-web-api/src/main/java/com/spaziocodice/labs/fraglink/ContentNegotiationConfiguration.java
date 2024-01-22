@@ -16,33 +16,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.apache.jena.riot.Lang.JSONLD;
-
 @AutoConfiguration
 public class ContentNegotiationConfiguration implements WebMvcConfigurer {
-
-//    private final static Map<String, MediaType> SUPPORTED_TRIPLES_MEDIA_TYPES = new HashMap<>() {{
-//        put("xml", MediaType.parseMediaType(WebContent.contentTypeRDFXML));
-//        put("rdf", MediaType.parseMediaType(WebContent.contentTypeRDFXML));
-//        put("ttl", MediaType.parseMediaType(WebContent.contentTypeTurtle));
-//        put("n3", MediaType.parseMediaType(WebContent.contentTypeN3));
-//        put("nt", MediaType.parseMediaType(WebContent.contentTypeNTriples));
-//        put(JSONLD.getName(), MediaType.parseMediaType(WebContent.contentTypeJSONLD));
-//        put("rt", MediaType.parseMediaType(WebContent.contentTypeRDFThrift));
-//        put("trdf", MediaType.parseMediaType(WebContent.contentTypeRDFThrift));
-//    }};
-
     private final static Map<String, MediaType> SUPPORTED_QUADS_MEDIA_TYPES = new HashMap<>() {{
         put("nq", MediaType.parseMediaType(WebContent.contentTypeNQuads));
         put("trig", MediaType.parseMediaType(WebContent.contentTypeTriG));
         put("trix", MediaType.parseMediaType(WebContent.contentTypeTriX));
     }};
-
-//    public final static Set<Lang> TRIPLES_SYNTAXES =
-//            SUPPORTED_TRIPLES_MEDIA_TYPES.values().stream()
-//                    .map(Object::toString)
-//                    .map(RDFLanguages::contentTypeToLang)
-//                    .collect(Collectors.toSet());
 
     public final static Set<Lang> QUADS_SYNTAXES =
             SUPPORTED_QUADS_MEDIA_TYPES.values().stream()
@@ -51,7 +31,6 @@ public class ContentNegotiationConfiguration implements WebMvcConfigurer {
                     .collect(Collectors.toSet());
 
     private final static Map<String, MediaType> MEDIA_TYPES= new HashMap<>() {{
-        //putAll(SUPPORTED_TRIPLES_MEDIA_TYPES);
         putAll(SUPPORTED_QUADS_MEDIA_TYPES);
     }};
 
@@ -72,11 +51,6 @@ public class ContentNegotiationConfiguration implements WebMvcConfigurer {
                                  WebContent.contentTypeTriX,
                                  WebContent.contentTypeTriXxml))
                 .forEach(converter -> converters.add(0, converter));
-//
-//        createConverters(SUPPORTED_TRIPLES_MEDIA_TYPES.values()
-//                            .stream()
-//                            .map(Object::toString)
-//                            .toList()).forEach(converter -> converters.add(0, converter));
 
         converters.addAll(createConverters(SUPPORTED_QUADS_MEDIA_TYPES.values()
                                                 .stream()

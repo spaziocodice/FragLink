@@ -32,4 +32,10 @@ public abstract class LinkedDataFragmentResponse<T> {
     }
 
     public abstract Model patternSolution();
+
+    public boolean isPaged() {
+        return getFragmentCardinality()
+                    .map(cardinality -> matches != null && matches.size() < cardinality)
+                    .orElse(false);
+    }
 }
