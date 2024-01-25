@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -178,9 +180,10 @@ import static java.util.stream.Collectors.joining;
 
         if (response.getFragmentCardinality().isPresent()) {
             var lastPageNumber = (response.getFragmentCardinality().get() / maxStatementsInPage) + 1;
-            var nextPageId = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, Long.toString(currentPageNumber + 1)).toString());
-            fragment.addProperty(NEXT_PAGE, nextPageId);
             if (currentPageNumber != lastPageNumber) {
+                var nextPageId = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, Long.toString(currentPageNumber + 1)).toString());
+                fragment.addProperty(NEXT_PAGE, nextPageId);
+
                 var lastPageId = model.createResource(fragmentUrl.setParameter(PAGE_NUMBER_PARAMETER_NAME, Long.toString(lastPageNumber)).toString());
                 fragment.addProperty(LAST_PAGE, lastPageId);
             }
@@ -226,10 +229,18 @@ import static java.util.stream.Collectors.joining;
     private String fragmentIRI(HttpServletRequest request) {
         var iri = baseUrl +
                 request.getRequestURI() +
-                Stream.of(ofNullable(request.getParameter(SUBJECT_PARAMETER_NAME)).map(v -> SUBJECT_PARAMETER_NAME + "=" + v).orElse(null),
-                                ofNullable(request.getParameter(PREDICATE_PARAMETER_NAME)).map(v -> PREDICATE_PARAMETER_NAME + "=" + v).orElse(null),
-                                ofNullable(request.getParameter(OBJECT_PARAMETER_NAME)).map(v -> OBJECT_PARAMETER_NAME + "=" + v).orElse(null),
-                                ofNullable(request.getParameter(OBJECT_PARAMETER_NAME)).map(v -> OBJECT_PARAMETER_NAME + "=" + v).orElse(null))
+                Stream.of(ofNullable(request.getParameter(SUBJECT_PARAMETER_NAME))
+                                            .map(v -> URLEncoder.encode(v, StandardCharsets.UTF_8))
+                                            .map(v -> SUBJECT_PARAMETER_NAME + "=" + v).orElse(null),
+                                ofNullable(request.getParameter(PREDICATE_PARAMETER_NAME))
+                                            .map(v -> URLEncoder.encode(v, StandardCharsets.UTF_8))
+                                            .map(v -> PREDICATE_PARAMETER_NAME + "=" + v).orElse(null),
+                                ofNullable(request.getParameter(OBJECT_PARAMETER_NAME))
+                                            .map(v -> URLEncoder.encode(v, StandardCharsets.UTF_8))
+                                            .map(v -> OBJECT_PARAMETER_NAME + "=" + v).orElse(null),
+                                ofNullable(request.getParameter(GRAPH_PARAMETER_NAME))
+                                            .map(v -> URLEncoder.encode(v, StandardCharsets.UTF_8))
+                                            .map(v -> GRAPH_PARAMETER_NAME + "=" + v).orElse(null))
                         .filter(Objects::nonNull)
                         .collect(joining("&", "?", ""));
         return iri.endsWith("?") ? iri.substring(0, iri.length() - 1) : iri;
