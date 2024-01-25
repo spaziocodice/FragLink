@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.spaziocodice.labs.rdf</groupId>
 	<artifactId>fraglink</artifactId>
-	<version>1.1.2-SNAPSHOT</version>
+	<version>1.1.2</version>
     <packaging>pom</packaging>
     <name>FragLink: A Linked Data Fragment Server</name>
 	<organization>
@@ -37,7 +37,7 @@
     <scm>
         <connection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/spaziocodice/fraglink.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>v1.1.2</tag>
   </scm>
     <distributionManagement>
 		<repository>
