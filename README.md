@@ -29,7 +29,7 @@ Then, in the dependencies section:
 <dependency>
   <groupId>com.spaziocodice.labs.rdf</groupId>
   <artifactId>fraglink-starter</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ fraglink:
 Start your server. After a few seconds, you should see the following messages:
 
 ```
-... : <FRAGLINK-00001> : FragLink v1.1.1 has been enabled on this server.
+... : <FRAGLINK-00001> : FragLink v1.1.2 has been enabled on this server.
 ```
 
 The server is running: great! Linked Data Fragments are exposed through the root (/) REST endpoint. The endpoint template is 
