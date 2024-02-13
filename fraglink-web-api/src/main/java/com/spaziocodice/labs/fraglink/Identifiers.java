@@ -35,13 +35,13 @@ public interface Identifiers {
     Property HYDRA_PAGED_COLLECTION = createProperty(HYDRA + "PagedCollection");
     Property HYDRA_PARTIAL_COLLECTION = createProperty(HYDRA + "PartialCollectionView");
 
-    Property FIRST_PAGE = createProperty(HYDRA + "firstPage");
+    Property FIRST_PAGE = createProperty(HYDRA + "first");
 
-    Property NEXT_PAGE = createProperty(HYDRA + "nextPage");
+    Property NEXT_PAGE = createProperty(HYDRA + "next");
 
-    Property PREVIOUS_PAGE = createProperty(HYDRA + "previousPage");
+    Property PREVIOUS_PAGE = createProperty(HYDRA + "previous");
 
-    Property LAST_PAGE = createProperty(HYDRA + "lastPage");
+    Property LAST_PAGE = createProperty(HYDRA + "last");
 
     String PAGE_NUMBER_PARAMETER_NAME = "page";
 

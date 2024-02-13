@@ -21,8 +21,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -62,8 +62,8 @@ import static java.util.stream.Collectors.joining;
 
 @RestController
 @Slf4j
-@RequestMapping("/fragments")
-    public class LinkedDataFragment {
+@Lazy
+public class LinkedDataFragment {
 
     @Value("${fraglink.page.maxStatements:50}")
     private int maxStatementsInPage;
@@ -85,7 +85,7 @@ import static java.util.stream.Collectors.joining;
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 
-    @GetMapping()
+    @GetMapping("/fragments")
     public Dataset linkedDataFragment(
             @RequestParam(name = SUBJECT_PARAMETER_NAME, required = false) String subject,
             @RequestParam(name = PREDICATE_PARAMETER_NAME, required = false) String predicate,
@@ -207,7 +207,7 @@ import static java.util.stream.Collectors.joining;
     }
 
     private String template(HttpServletRequest request) {
-        return baseUrl +
+        return baseUrl.replace("/fragments", "") +
                 request.getRequestURI() +
                 "{?" +
                     SUBJECT_PARAMETER_NAME + "," +
