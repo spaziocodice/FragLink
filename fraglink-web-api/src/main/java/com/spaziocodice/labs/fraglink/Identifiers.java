@@ -10,7 +10,6 @@ public interface Identifiers {
     String OBJECT_PARAMETER_NAME = "object";
     String GRAPH_PARAMETER_NAME = "graph";
     String HYDRA = "http://www.w3.org/ns/hydra/core#";
-    String SD = "http://www.w3.org/ns/sparql-service-description#";
 
     Property HYDRA_TOTAL_ITEMS = createProperty(HYDRA + "totalItems");
 
