@@ -143,10 +143,10 @@ public class LinkedDataFragment {
 
         fragment.addProperty(VOID.subset, fragment)
                 .addProperty(RDF.type, HYDRA_PARTIAL_COLLECTION)
-                .addProperty(DC.source, fragmentDataset.getURI())
-                .addLiteral(HYDRA_TOTAL_ITEMS, fragmentCardinality)
-                .addLiteral(VOID.triples, fragmentCardinality)
-                .addProperty(HYDRA_ITEMS_PER_PAGE, model.createTypedLiteral(maxStatementsInPage));
+                .addProperty(DC.source, fragmentDataset.getURI());
+                //.addLiteral(HYDRA_TOTAL_ITEMS, fragmentCardinality)
+                //.addLiteral(VOID.triples, fragmentCardinality)
+                //.addProperty(HYDRA_ITEMS_PER_PAGE, model.createTypedLiteral(maxStatementsInPage));
 
         if (response.isPaged()) {
             fragmentDataset.addProperty(RDF.type, HYDRA_PAGED_COLLECTION);
@@ -240,7 +240,9 @@ public class LinkedDataFragment {
                                             .map(v -> OBJECT_PARAMETER_NAME + "=" + v).orElse(null),
                                 ofNullable(request.getParameter(GRAPH_PARAMETER_NAME))
                                             .map(v -> URLEncoder.encode(v, StandardCharsets.UTF_8))
-                                            .map(v -> GRAPH_PARAMETER_NAME + "=" + v).orElse(null))
+                                            .map(v -> GRAPH_PARAMETER_NAME + "=" + v).orElse(null),
+                                ofNullable(request.getParameter(PAGE_NUMBER_PARAMETER_NAME))
+                                            .map(v -> PAGE_NUMBER_PARAMETER_NAME + "=" + v).orElse(null))
                         .filter(Objects::nonNull)
                         .collect(joining("&", "?", ""));
         return iri.endsWith("?") ? iri.substring(0, iri.length() - 1) : iri;
