@@ -46,7 +46,6 @@ import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TEMPLATE;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE_REPRESENTATION;
 import static com.spaziocodice.labs.fraglink.Identifiers.LAST_PAGE;
-import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_ITEMS_PER_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.NEXT_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.OBJECT_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PAGE_NUMBER_PARAMETER_NAME;
@@ -54,7 +53,6 @@ import static com.spaziocodice.labs.fraglink.Identifiers.PREDICATE_PARAMETER_NAM
 import static com.spaziocodice.labs.fraglink.Identifiers.PREVIOUS_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.QUAD_PATTERN_RESOLVER;
 import static com.spaziocodice.labs.fraglink.Identifiers.SUBJECT_PARAMETER_NAME;
-import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TOTAL_ITEMS;
 import static com.spaziocodice.labs.fraglink.Identifiers.TRIPLE_PATTERN_RESOLVER;
 import static com.spaziocodice.labs.fraglink.service.impl.TriplePatternResolver.NO_OP_RESOLVER;
 import static java.util.Optional.ofNullable;
@@ -137,16 +135,9 @@ public class LinkedDataFragment {
                        .addProperty(VOID.subset, fragment)
                        .addProperty(HYDRA_SEARCH, templateAndMapping);
 
-        var fragmentCardinality = response.getFragmentCardinality()
-                                            .map(model::createTypedLiteral)
-                                            .orElseGet( () -> model.createTypedLiteral(0L));
-
         fragment.addProperty(VOID.subset, fragment)
                 .addProperty(RDF.type, HYDRA_PARTIAL_COLLECTION)
                 .addProperty(DC.source, fragmentDataset.getURI());
-                //.addLiteral(HYDRA_TOTAL_ITEMS, fragmentCardinality)
-                //.addLiteral(VOID.triples, fragmentCardinality)
-                //.addProperty(HYDRA_ITEMS_PER_PAGE, model.createTypedLiteral(maxStatementsInPage));
 
         if (response.isPaged()) {
             fragmentDataset.addProperty(RDF.type, HYDRA_PAGED_COLLECTION);
