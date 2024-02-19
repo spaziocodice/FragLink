@@ -43,6 +43,7 @@ import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_PARTIAL_COLLECTIO
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_PROPERTY;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_SEARCH;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TEMPLATE;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TOTAL_ITEMS;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE_REPRESENTATION;
 import static com.spaziocodice.labs.fraglink.Identifiers.LAST_PAGE;
@@ -135,9 +136,15 @@ public class LinkedDataFragment {
                        .addProperty(VOID.subset, fragment)
                        .addProperty(HYDRA_SEARCH, templateAndMapping);
 
+        var fragmentCardinality = response.getFragmentCardinality()
+                .map(model::createTypedLiteral)
+                .orElseGet( () -> model.createTypedLiteral(0L));
+
         fragment.addProperty(VOID.subset, fragment)
                 .addProperty(RDF.type, HYDRA_PARTIAL_COLLECTION)
-                .addProperty(DC.source, fragmentDataset.getURI());
+                .addProperty(DC.source, fragmentDataset.getURI())
+                .addLiteral(HYDRA_TOTAL_ITEMS, fragmentCardinality)
+                .addLiteral(VOID.triples, fragmentCardinality);
 
         if (response.isPaged()) {
             fragmentDataset.addProperty(RDF.type, HYDRA_PAGED_COLLECTION);
