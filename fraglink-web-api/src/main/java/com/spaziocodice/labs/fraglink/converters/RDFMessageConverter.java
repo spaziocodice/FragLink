@@ -3,6 +3,7 @@ package com.spaziocodice.labs.fraglink.converters;
 import com.spaziocodice.labs.fraglink.ContentNegotiationConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
@@ -33,6 +34,9 @@ public class RDFMessageConverter extends AbstractGenericHttpMessageConverter<Dat
     protected void writeInternal(Dataset dataset, Type type, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
         if (ContentNegotiationConfiguration.QUADS_SYNTAXES.contains(syntax)) {
             RDFDataMgr.write(outputMessage.getBody(), dataset, syntax);
+        } else if (ContentNegotiationConfiguration.TRIPLES_SYNTAXES.contains(syntax)) {
+            var model = ModelFactory.createDefaultModel().add(dataset.getUnionModel()).add(dataset.getDefaultModel());
+            RDFDataMgr.write(outputMessage.getBody(), model, syntax);
         } else {
             throw new HttpMessageNotWritableException("Malformed Syntax / Response combination.");
         }

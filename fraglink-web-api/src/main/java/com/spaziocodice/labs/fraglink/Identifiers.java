@@ -10,7 +10,6 @@ public interface Identifiers {
     String OBJECT_PARAMETER_NAME = "object";
     String GRAPH_PARAMETER_NAME = "graph";
     String HYDRA = "http://www.w3.org/ns/hydra/core#";
-    String SD = "http://www.w3.org/ns/sparql-service-description#";
 
     Property HYDRA_TOTAL_ITEMS = createProperty(HYDRA + "totalItems");
 
@@ -35,13 +34,13 @@ public interface Identifiers {
     Property HYDRA_PAGED_COLLECTION = createProperty(HYDRA + "PagedCollection");
     Property HYDRA_PARTIAL_COLLECTION = createProperty(HYDRA + "PartialCollectionView");
 
-    Property FIRST_PAGE = createProperty(HYDRA + "firstPage");
+    Property FIRST_PAGE = createProperty(HYDRA + "first");
 
-    Property NEXT_PAGE = createProperty(HYDRA + "nextPage");
+    Property NEXT_PAGE = createProperty(HYDRA + "next");
 
-    Property PREVIOUS_PAGE = createProperty(HYDRA + "previousPage");
+    Property PREVIOUS_PAGE = createProperty(HYDRA + "previous");
 
-    Property LAST_PAGE = createProperty(HYDRA + "lastPage");
+    Property LAST_PAGE = createProperty(HYDRA + "last");
 
     String PAGE_NUMBER_PARAMETER_NAME = "page";
 
