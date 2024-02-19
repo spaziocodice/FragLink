@@ -21,8 +21,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,10 +43,10 @@ import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_PARTIAL_COLLECTIO
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_PROPERTY;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_SEARCH;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TEMPLATE;
+import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TOTAL_ITEMS;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE;
 import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_VARIABLE_REPRESENTATION;
 import static com.spaziocodice.labs.fraglink.Identifiers.LAST_PAGE;
-import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_ITEMS_PER_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.NEXT_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.OBJECT_PARAMETER_NAME;
 import static com.spaziocodice.labs.fraglink.Identifiers.PAGE_NUMBER_PARAMETER_NAME;
@@ -54,7 +54,6 @@ import static com.spaziocodice.labs.fraglink.Identifiers.PREDICATE_PARAMETER_NAM
 import static com.spaziocodice.labs.fraglink.Identifiers.PREVIOUS_PAGE;
 import static com.spaziocodice.labs.fraglink.Identifiers.QUAD_PATTERN_RESOLVER;
 import static com.spaziocodice.labs.fraglink.Identifiers.SUBJECT_PARAMETER_NAME;
-import static com.spaziocodice.labs.fraglink.Identifiers.HYDRA_TOTAL_ITEMS;
 import static com.spaziocodice.labs.fraglink.Identifiers.TRIPLE_PATTERN_RESOLVER;
 import static com.spaziocodice.labs.fraglink.service.impl.TriplePatternResolver.NO_OP_RESOLVER;
 import static java.util.Optional.ofNullable;
@@ -62,8 +61,8 @@ import static java.util.stream.Collectors.joining;
 
 @RestController
 @Slf4j
-@RequestMapping("/fragments")
-    public class LinkedDataFragment {
+@Lazy
+public class LinkedDataFragment {
 
     @Value("${fraglink.page.maxStatements:50}")
     private int maxStatementsInPage;
@@ -85,7 +84,7 @@ import static java.util.stream.Collectors.joining;
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 
-    @GetMapping()
+    @GetMapping("/fragments")
     public Dataset linkedDataFragment(
             @RequestParam(name = SUBJECT_PARAMETER_NAME, required = false) String subject,
             @RequestParam(name = PREDICATE_PARAMETER_NAME, required = false) String predicate,
@@ -138,15 +137,14 @@ import static java.util.stream.Collectors.joining;
                        .addProperty(HYDRA_SEARCH, templateAndMapping);
 
         var fragmentCardinality = response.getFragmentCardinality()
-                                            .map(model::createTypedLiteral)
-                                            .orElseGet( () -> model.createTypedLiteral(0L));
+                .map(model::createTypedLiteral)
+                .orElseGet( () -> model.createTypedLiteral(0L));
 
         fragment.addProperty(VOID.subset, fragment)
                 .addProperty(RDF.type, HYDRA_PARTIAL_COLLECTION)
                 .addProperty(DC.source, fragmentDataset.getURI())
                 .addLiteral(HYDRA_TOTAL_ITEMS, fragmentCardinality)
-                .addLiteral(VOID.triples, fragmentCardinality)
-                .addProperty(HYDRA_ITEMS_PER_PAGE, model.createTypedLiteral(maxStatementsInPage));
+                .addLiteral(VOID.triples, fragmentCardinality);
 
         if (response.isPaged()) {
             fragmentDataset.addProperty(RDF.type, HYDRA_PAGED_COLLECTION);
@@ -207,7 +205,7 @@ import static java.util.stream.Collectors.joining;
     }
 
     private String template(HttpServletRequest request) {
-        return baseUrl +
+        return baseUrl.replace("/fragments", "") +
                 request.getRequestURI() +
                 "{?" +
                     SUBJECT_PARAMETER_NAME + "," +
@@ -240,7 +238,9 @@ import static java.util.stream.Collectors.joining;
                                             .map(v -> OBJECT_PARAMETER_NAME + "=" + v).orElse(null),
                                 ofNullable(request.getParameter(GRAPH_PARAMETER_NAME))
                                             .map(v -> URLEncoder.encode(v, StandardCharsets.UTF_8))
-                                            .map(v -> GRAPH_PARAMETER_NAME + "=" + v).orElse(null))
+                                            .map(v -> GRAPH_PARAMETER_NAME + "=" + v).orElse(null),
+                                ofNullable(request.getParameter(PAGE_NUMBER_PARAMETER_NAME))
+                                            .map(v -> PAGE_NUMBER_PARAMETER_NAME + "=" + v).orElse(null))
                         .filter(Objects::nonNull)
                         .collect(joining("&", "?", ""));
         return iri.endsWith("?") ? iri.substring(0, iri.length() - 1) : iri;
