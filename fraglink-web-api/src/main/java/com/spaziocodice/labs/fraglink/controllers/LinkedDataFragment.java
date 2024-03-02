@@ -111,7 +111,8 @@ public class LinkedDataFragment {
                                                             ofNullable(predicate),
                                                             ofNullable(object),
                                                             ofNullable(graph),
-                                                            ofNullable(pageNumber));
+                                                            ofNullable(pageNumber),
+                                                            request);
 
         var templateAndMapping = model.createResource()
                 .addProperty(HYDRA_TEMPLATE, template(request))
